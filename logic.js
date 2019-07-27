@@ -8,20 +8,32 @@ currentHour = today.getHours();
 currentMinutes = today.getMinutes();
 yearDisplay = $("#yearDisplay");
 monthDisplay = $("#monthDisplay");
+dateDisplay = $("#dateDisplay");
 timeHeader = $("#timeHeader");
 calendarBody = $("#calendarBody");
 nextButton = $("#nextButton");
 previousButton = $("#previousButton");
 createNewEntryButton = $("#createNewEntry");
+
+sundayDateSpan = $("#sundayDateSpan");
+mondayDateSpan = $("#mondayDateSpan");
+tuesdayDateSpan = $("#tuesdayDateSpan");
+wednesdayDateSpan = $("#wednesdayDateSpan");
+thursdayDateSpan = $("#thursdayDateSpan");
+fridayDateSpan = $("#fridayDateSpan");
+saturdayDateSpan = $("#saturdayDateSpan");
 weekViewButton = $("#weekView");
 
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
+// boolean that tracks whether program is in month or in week view.
+// Necessary for next, previous buttons to work properly
+inMonthView = true;
 
 $(document).ready(function(){
 
     
     displayMonthView(currentMonth, currentYear);
-    displayYearMonth(currentMonth, currentYear);
+    displayYearMonthDate(currentDate, currentMonth, currentYear);
 
     createNewEntryButton.click(function(){
         console.log("toggling sidebar");
@@ -29,20 +41,41 @@ $(document).ready(function(){
     });
 
     nextButton.click(function(){
-        nextMonth();
+        if(inMonthView){
+            nextMonth();
+        }
+        else{
+            nextWeek();
+        }
     });
 
     previousButton.click(function(){
-        previousMonth();
+        if(inMonthView){
+            previousMonth();
+        }
+        else{
+            previousWeek();
+        }
     });
 
     weekViewButton.click(function(){
-        displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+        if(inMonthView){
+            inMonthView = false;
+            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            weekViewButton.text("Month View");
+        }
+        else{
+            inMonthView = true;
+            displayMonthView(currentMonth, currentYear)
+            weekViewButton.text("Week View");
+
+        }
     })
 })
 
 
-function displayYearMonth(month, year){
+function displayYearMonthDate(date, month, year){
+    dateDisplay.text(date);
     yearDisplay.text(year);
     monthDisplay.text(months[month]);
 }
@@ -50,16 +83,12 @@ function displayYearMonth(month, year){
 function displayMonthView(month, year){
 
     timeHeader.hide();
+    hideDateSpans();
 
     calendarBody.empty();
     tableContent = "";
     daysInMonth = calculateDaysInMonth(month, year);
     let startDay = (new Date(year, month)).getDay();
-
-    console.log("StartDay: " + startDay);
-
-    console.log("Year: " + year);
-    console.log("Month: " + month);
 
     dateCounter = 1;
     for(i = 0; i < 6; i++){
@@ -77,8 +106,7 @@ function displayMonthView(month, year){
             }
             // normal entries
             else if(dateCounter <= daysInMonth){
-                column = column + "<h1>dummyText</h1>"
-                console.log("Day: " + dateCounter);
+                column = column + "<h1>" + dateCounter + "</h1>";
                 dateCounter++;
             }
 
@@ -96,18 +124,69 @@ function displayMonthView(month, year){
 }
 
 function nextMonth(){
+    var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
+    var lastDateOfWeek = currentDate - currentDay + 6;
+    var daysLeftInMonth = daysInMonth - lastDateOfWeek;
     if(currentMonth === 11){
         currentYear++;
         currentMonth = 0;
+        currentDate = 7 - daysLeftInMonth;
+        console.log("currentDate: " + currentDate);
     }
     else{
         currentMonth++;
+        currentDate = 7 - (daysLeftInMonth % 7);
+        console.log("currentDate: " + currentDate);
     }
-    displayYearMonth(currentMonth, currentYear);
+    displayYearMonthDate(currentDate, currentMonth, currentYear);
     displayMonthView(currentMonth, currentYear);
 }
 
+function nextWeek(){
+    
+    var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
+    var lastDateOfWeek = currentDate - currentDay + 6;
+    var daysLeftInMonth = daysInMonth - lastDateOfWeek;
+    if(daysLeftInMonth < 7){
+        if(currentMonth === 11){
+            currentYear++;
+            currentMonth = 0;
+        }
+        else{
+            currentMonth++;
+        }
+        currentDate = 7 - daysLeftInMonth;
+    }
+    else{
+        currentDate += 7;
+    }
+    displayYearMonthDate(currentDate, currentMonth, currentYear);
+    displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+}
+
+function previousWeek(){
+    daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
+    var daysInPrevMonth;
+    if(currentDate < 7){
+        if(currentMonth === 0){
+            currentYear--;
+            currentMonth = 11;
+        }
+        else{
+            currentMonth--;
+        }
+        
+        currentDate = daysInPrevMonth - (7 - currentDate);
+    }
+    else{
+        currentDate -= 7;
+    }
+    displayYearMonthDate(currentDate, currentMonth, currentYear);
+    displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+}
+
 function previousMonth(){
+    daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
     if(currentMonth === 0){
         currentYear--;
         currentMonth = 11;
@@ -115,7 +194,8 @@ function previousMonth(){
     else{
         currentMonth--;
     }
-    displayYearMonth(currentMonth, currentYear);
+    currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
+    displayYearMonthDate(currentDate, currentMonth, currentYear);
     displayMonthView(currentMonth, currentYear);
 }
 
@@ -125,7 +205,20 @@ function calculateDaysInMonth(month, year){
     return 32 - new Date(year, month, 32).getDate();
 }
 
+function calculateDaysPrevMonth(month, year){
+
+    if(currentMonth === 1){
+        return calculateDaysInMonth(11, year-1);
+    }
+    else{
+        return calculateDaysInMonth(month, year);
+    }
+
+}
+
 function displayWeekView(minutes, hour, day, date, month, year){
+
+    inMonthView = false;
     
     timeTracker = new Date();
     timeTracker.setHours(00);
@@ -138,6 +231,8 @@ function displayWeekView(minutes, hour, day, date, month, year){
     calendarBody.empty();
 
     tableContent = "";
+
+    displayDateSpans(day, date);
 
     for(i = 0; i < 48; i++){
 
@@ -170,6 +265,11 @@ function displayWeekView(minutes, hour, day, date, month, year){
 
 
         for(j = 0; j < 7; j++){
+            var column = "<td>";
+
+
+            column = column + "</td>";
+            row = row + column;
 
         }
 
@@ -179,4 +279,39 @@ function displayWeekView(minutes, hour, day, date, month, year){
 
     calendarBody.append(tableContent);
 
+}
+
+function displayDateSpans(day, date){
+
+    var daysinPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear);
+    // console.log(date-day);
+    var weekDates = [];
+
+    lastMonthDateCounter = date-day;
+    while(lastMonthDateCounter < 1){
+        weekDates.push(daysinPrevMonth + lastMonthDateCounter);
+        lastMonthDateCounter++;
+    }
+    while(weekDates.length < 7){
+        weekDates.push(lastMonthDateCounter);
+        lastMonthDateCounter++;
+    }
+
+    sundayDateSpan.text(weekDates[0]);
+    mondayDateSpan.text(weekDates[1]);
+    tuesdayDateSpan.text(weekDates[2]);
+    wednesdayDateSpan.text(weekDates[3]);
+    thursdayDateSpan.text(weekDates[4]);
+    fridayDateSpan.text(weekDates[5]);
+    saturdayDateSpan.text(weekDates[6]);
+}
+
+function hideDateSpans(){
+    sundayDateSpan.text("");
+    mondayDateSpan.text("");
+    tuesdayDateSpan.text("");
+    wednesdayDateSpan.text("");
+    thursdayDateSpan.text("");
+    fridayDateSpan.text("");
+    saturdayDateSpan.text("");
 }

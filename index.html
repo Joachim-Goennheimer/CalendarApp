@@ -84,7 +84,9 @@
                                         <i class="left arrow icon"></i>
                                         Previous
                                 </button>
-                                <h1 class="ui header">Year: <span id="yearDisplay"></span> Month: <span id="monthDisplay"></span></h1>
+                                <h1 class="ui header">Year: <span id="yearDisplay"></span>  -  Month: <span id="monthDisplay">
+
+                                </span>  -  Date: <span id="dateDisplay"></span></h1>
                                 <button class="ui right labeled icon button" id="nextButton">
                                         <i class="right arrow icon"></i>
                                         Next
@@ -100,13 +102,13 @@
                                 <thead>
                                     <tr>
                                         <th id="timeHeader">Time</th>
-                                        <th>Sunday</th>
-                                        <th>Monday</th>
-                                        <th>Tuesday</th>
-                                        <th>Wednesday</th>
-                                        <th>Thursday</th>
-                                        <th>Friday</th>
-                                        <th>Saturday</th>
+                                        <th>Sunday <span id="sundayDateSpan"></span></th>
+                                        <th>Monday <span id="mondayDateSpan"></span></th>
+                                        <th>Tuesday <span id="tuesdayDateSpan"></span></th>
+                                        <th>Wednesday <span id="wednesdayDateSpan"></span></th>
+                                        <th>Thursday <span id="thursdayDateSpan"></span></th>
+                                        <th>Friday <span id="fridayDateSpan"></span></th>
+                                        <th>Saturday <span id="saturdayDateSpan"></span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="calendarBody">
