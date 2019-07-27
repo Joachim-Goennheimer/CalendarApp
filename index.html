@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <meta charset="UTF-8">
+        <title>Calendar App</title>
+
+
+        <script
+			  src="https://code.jquery.com/jquery-3.4.1.min.js"
+			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+              crossorigin="anonymous">
+            </script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+        <link rel="stylesheet" type="text/css" href="styles.css">
+
+    </header>
+
+    <body>
+
+            <body>
+                    <div class="ui sidebar inverted vertical menu">
+                        <!-- <form action="" method="POST">
+                            <label for="shortDescription">Short Description</label>
+                            <input type="text" id="shortDescription" name="shortDescription">
+                            
+                            <label for="details">Details</label>
+                            <textarea id="eventDetails" name="details"></textarea>
+
+                            <label for="startTime">Event Start</label>
+
+                            <label for="endTime">Event End</label>
+                            <input type="time" name="endTime">
+
+                            <button type="submit">Save Event</button>
+                        </form> -->
+
+                        <form class="ui form segment" method="POST">
+                                <div class="two fields">
+                                  <div class="field">
+                                    <label>Event Start</label>
+                                    <input type="time" name="startTime">
+                                </div>
+                                  <div class="field">
+                                    <label>Event End</label>
+                                    <input type="time" name="endTime">
+                                  </div>
+                                </div>
+                                <div class="field">
+                                  <label>Title</label>
+                                  <input placeholder="Title of the event" name="title" type="text">
+                                </div>
+                                <div class="field">
+                                        <label>Location</label>
+                                        <input placeholder="Location of the event" name="location" type="text">
+                                </div>
+                                <div class="field">
+                                        <label>Organizer</label>
+                                        <input placeholder="Organizer of the event" name="organizer" type="text">
+                                </div>
+                                <div class="field">
+                                        <label>Website</label>
+                                        <input placeholder="Website" name="webpage" type="text">
+                                </div>
+                                <div class="ui checkbox">
+                                        <input name="status" type="checkbox">
+                                        <label>Status</label>
+                                </div>
+                                <div class="ui checkbox">
+                                        <input name="allday" type="checkbox">
+                                        <label>Allday</label>
+                                </div>
+                                
+                                <div class="ui primary submit button">Submit</div>
+                              </form>
+
+                    </div>
+                    <div class="pusher">
+                      <!-- Site content !-->
+                      <div id="Navigation">
+                            <h1>This will be the navigation</h1>
+                            <div id="buttons">
+                
+                                <button class="ui left labeled icon button" id="previousButton">
+                                        <i class="left arrow icon"></i>
+                                        Previous
+                                </button>
+                                <h1 class="ui header">Year: <span id="yearDisplay"></span> Month: <span id="monthDisplay"></span></h1>
+                                <button class="ui right labeled icon button" id="nextButton">
+                                        <i class="right arrow icon"></i>
+                                        Next
+                                </button>
+                                <button class="ui button" id="createNewEntry">Create New Entry</button>
+                                <button class="ui button" id="weekView">Week View</button>
+                            </div>
+                        </div>
+                
+                        <div id="calendar">
+                
+                            <table class="ui celled table">
+                                <thead>
+                                    <tr>
+                                        <th id="timeHeader">Time</th>
+                                        <th>Sunday</th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                        <th>Saturday</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="calendarBody">
+                
+                                </tbody>
+                            </table>
+                        </div>
+                      
+                    </div>
+                  </body>
+
+        
+
+
+        
+            
+            <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+            <script src="logic.js"></script>
+    </body>
+</html>
