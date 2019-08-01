@@ -34,44 +34,75 @@
                             <button type="submit">Save Event</button>
                         </form> -->
 
-                        <form class="ui form segment" method="POST">
+                       <form class="ui form segment" method="POST">
+
                                 <div class="two fields">
+
                                   <div class="field">
-                                    <label>Event Start</label>
-                                    <input type="time" name="startTime">
+                                    <label id="uniqueID">Event Start</label>
+                                    <input placeholder="--:--" type="time" name="startTime" id="startTInput" value="">
                                 </div>
                                   <div class="field">
                                     <label>Event End</label>
-                                    <input type="time" name="endTime">
+                                    <input placeholder="--:--" type="time" name="endTime" id="endTInput" value="">
                                   </div>
                                 </div>
                                 <div class="field">
                                   <label>Title</label>
-                                  <input placeholder="Title of the event" name="title" type="text">
+                                  <input placeholder="Title of the event" name="title" type="text" maxlength="50" id="titleInput" value="">
                                 </div>
                                 <div class="field">
                                         <label>Location</label>
-                                        <input placeholder="Location of the event" name="location" type="text">
+                                        <input placeholder="Location of the event" name="location" type="text" maxlength="50" id="locationInput" value="">
                                 </div>
                                 <div class="field">
                                         <label>Organizer</label>
-                                        <input placeholder="Organizer of the event" name="organizer" type="text">
+                                        <input placeholder="Organizer of the event" name="organizer" type="text" maxlength="50" id="organizerInput" value="">
                                 </div>
                                 <div class="field">
                                         <label>Website</label>
-                                        <input placeholder="Website" name="webpage" type="text">
+                                        <input placeholder="Website" name="webpage" type="text" maxlength="100" id="websiteInput" value="">
                                 </div>
-                                <div class="ui checkbox">
-                                        <input name="status" type="checkbox">
-                                        <label>Status</label>
+
+                                <div class="field">
+                                  <lable>Status</label>
+                                  <div class="ui selection dropdown" id="statusDropdown">
+                                      <input type="hidden" id="statusInput" name="gender">
+                                        <i class="dropdown icon"></i>
+                                        <div class="default text">Status of the event</div>
+                                        <div class="menu">
+                                          <div class="item" data-value="Free">Free</div>
+                                          <div class="item" data-value="Busy">Busy</div>
+                                          <div class="item" data-value="Tentative">Tentative</div>
+
+                                      </div>
+                                    </div>
                                 </div>
-                                <div class="ui checkbox">
-                                        <input name="allday" type="checkbox">
+
+                                <div class="field">
+                                        <label>Image</label>
+                                        <input placeholder="Image of the event" name="image" type="text" maxlength="100" id="imageInput" value="">
+                                </div>
+
+                                <div class="field">
+                                        <label>Category</label>
+                                        <input placeholder="Event category" name="Category" type="text" maxlength="100" id="categoryInput" value="" data-content="Categories" data-variation="mini">
+                                </div>
+
+
+
+                                <div class=" two fields">
+
+                                  <div class="ui primary submit button"
+                                  data-content="Please fill out the marked field correctly" data-variation="mini" id="submitButton">Submit</div>
+
+                                  <div class="ui checkbox">
+                                        <input name="allday" type="checkbox" id="alldayInput" value="">
                                         <label>Allday</label>
+                                  </div>
                                 </div>
-                                
-                                <div class="ui primary submit button">Submit</div>
                               </form>
+			    
 
                     </div>
                     <div class="pusher">
