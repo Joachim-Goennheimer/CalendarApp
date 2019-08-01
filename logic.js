@@ -24,6 +24,20 @@ fridayDateSpan = $("#fridayDateSpan");
 saturdayDateSpan = $("#saturdayDateSpan");
 weekViewButton = $("#weekView");
 
+
+
+submitButton = $("#submitButton");
+startTimeInput = $("#startTInput");
+endTimeInput = $("#endTInput");
+titleInput = $("#titleInput");
+organizerInput = $('#organizerInput');
+statusInput = $('#statusDropdown');
+categoryInput = $('#categoryInput');
+$('#statusDropdown').dropdown();
+$('#categoryInput').popup();
+
+
+
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
@@ -33,6 +47,180 @@ var eventData;
 
 $(document).ready(function(){
 
+    // form stuff Leon
+    
+    
+    
+    // check current input data
+function getAndCheckTitleInput() {
+
+  var titleInputValue = document.getElementById("titleInput").value;
+  if(titleInputValue == "") {
+    document.getElementById('titleInput').classList.add("red");
+    return false;
+  } else {
+    document.getElementById('titleInput').classList.remove("red");
+    return titleInputValue;
+  }
+}
+  titleInput.change(function() {
+    getAndCheckTitleInput();
+
+  })
+
+function checkAndGetOrganizerInput() {
+
+  var organizerInputValue = document.getElementById("organizerInput").value;
+  if (organizerInputValue == "") {
+
+    inputIsValid = false;
+    document.getElementById('organizerInput').classList.add("red");
+    return false;
+  } else {
+
+    document.getElementById('organizerInput').classList.remove("red");
+    return organizerInputValue;
+  }
+
+}
+  organizerInput.change(function() {
+  checkAndGetOrganizerInput();
+})
+
+function getAndCheckStartInput() {
+  var startTimeInputValue = document.getElementById("startTInput").value;
+  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+
+  if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
+
+    document.getElementById('startTInput').classList.add("red");
+    inputIsValid = false;
+  } else {
+
+    document.getElementById('startTInput').classList.remove("red");
+    return startTimeInputValue;
+  }
+}
+  startTimeInput.change(function() {
+   getAndCheckStartInput();
+ })
+
+
+function getAndCheckEndInput() {
+  var endTimeInputValue = document.getElementById("endTInput").value;
+  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+
+  if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
+
+    document.getElementById('endTInput').classList.add("red");
+    return false;
+  } else {
+    document.getElementById('endTInput').classList.remove("red");
+    return endTimeInputValue;
+  }
+}
+  endTimeInput.change(function() {
+  getAndCheckEndInput();
+})
+
+
+function getStatusInput() {
+  var statusInputValue = $('#statusDropdown').dropdown('get value');
+
+  if (statusInputValue == "") {
+
+    document.getElementById('statusDropdown').classList.add("red");
+  } else {
+
+    document.getElementById('statusDropdown').classList.remove("red");
+  }
+  return statusInputValue;
+}
+  statusInput.change(function() {
+    getStatusInput();
+  })
+
+
+    
+      // function checkInputLength(input, length) {
+  //
+  //   if(input.length < length + 1) {
+  //     console.log("String has valid length");
+  //   } else {
+  //     console.log("Invalid length");
+  //   }
+  //
+  // }
+    
+    
+      // remove popup after mouse leaves submit button
+  document.getElementById('submitButton').onmouseout = function(event) {
+    submitButton.popup('destroy');
+}
+    
+    
+    
+    
+    
+        submitButton.click(function() {
+
+        var locationValue = document.getElementById("locationInput").value;
+        var websiteValue = document.getElementById("websiteInput").value;
+        var alldayValue = $('input[name=allday]').is(':checked');
+
+            // reformat time input and add it if allday is true
+            if(alldayValue) {
+              startTimeInput = "00:00";
+              endTimeInput = "23:59";
+            }
+
+
+            // get and get values of all mandatory fields
+            // if not given mark them as incomplete
+            var titleValue = getAndCheckTitleInput();
+            var organizerValue = checkAndGetOrganizerInput();
+            var startTimeValue = getAndCheckStartInput();
+            var endTimeValue = getAndCheckEndInput();
+            var statusValue = getStatusInput();
+
+            var inputIsValid = true;
+
+            // check if all data was entered correctly
+            if(!titleValue || !organizerInput || !startTimeInput || !endTimeInput || !statusInput) {
+              inputIsValid = false;
+
+              submitButton.popup();
+              submitButton.popup('show');
+            }
+
+
+            // if all the necessary input is give correctly a request can be made
+            if(inputIsValid) {
+
+              // add time formatting
+              startTimeInput = "2019-06-24T" + startTimeInput;
+              endTimeInput = "2019-06-24T" + endTimeInput;
+
+
+              // make request with data
+              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTimeValue + '", "end": "' + endTimeValue + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '" }';
+              console.log(dummyRequest);
+            }
+
+            // $.post("https://dhbw.cheekbyte.de/calendar/500/events", JSON.parse(requestData), function(status) {
+            //   console.log(status);
+            // });
+
+    });
+
+    
+    
+    
+    
+    
+    
+    
+    
     
     displayMonthView(currentMonth, currentYear);
     displayYearMonthDate(currentDate, currentMonth, currentYear);
