@@ -55,18 +55,30 @@ $(document).ready(function(){
     nextButton.click(function(){
         if(inMonthView){
             nextMonth();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayMonthView(currentMonth, currentYear);
+            displayEventsMonthView();
         }
         else{
             nextWeek();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            displayEventsWeekView();
         }
     });
 
     previousButton.click(function(){
         if(inMonthView){
             previousMonth();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayMonthView(currentMonth, currentYear);
+            displayEventsMonthView();
         }
         else{
             previousWeek();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            displayEventsWeekView();
         }
     });
 
@@ -74,11 +86,13 @@ $(document).ready(function(){
         if(inMonthView){
             inMonthView = false;
             displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            displayEventsWeekView();
             weekViewButton.text("Month View");
         }
         else{
             inMonthView = true;
             displayMonthView(currentMonth, currentYear)
+            displayEventsMonthView();
             weekViewButton.text("Week View");
 
         }
@@ -162,10 +176,6 @@ function displayEventsMonthView(){
     var eventMonth;
     var eventDate;
 
-    var currentYearString = "" + currentYear;
-    var currentMonthString = "" + currentMonth;
-    var currentDayString = "" + currentDate;
-
     var eventDateID;
     var eventDIV;
 
@@ -187,7 +197,7 @@ function displayEventsMonthView(){
         eventMonth = parseInt(eventMonth);
         eventDate = parseInt(eventDate);
 
-        if(eventYear === currentYear && eventMonth === currentMonth){
+        // if(eventYear === currentYear && eventMonth === currentMonth){
 
             console.log(event.title);
             eventDateID = calculateIDMonthView(eventYear, eventMonth, eventDate);
@@ -195,7 +205,7 @@ function displayEventsMonthView(){
             console.log("eventDateID: " + eventDateID);
             var eventDateCell = $("#" + eventDateID);
             eventDateCell.append(eventDIV);
-        }
+        // }
 
         // console.log("*******************************");
         // console.log(event.title);
@@ -204,6 +214,51 @@ function displayEventsMonthView(){
         // console.log("event day" + eventDate)
         // console.log(event.start);
         // console.log(event.end);
+
+    })
+
+}
+
+function displayEventsWeekView(){
+    var eventStartString;
+
+    var eventYear;
+    var eventMonth;
+    var eventDate;
+
+    var eventDateID;
+    var eventDIV;
+
+    eventData.forEach(function(event){
+
+        eventStartString = event.start;
+
+        eventYear = eventStartString.slice(0, 4);
+        eventMonth = eventStartString.slice(5, 7);
+        eventDate = eventStartString.slice(8, 10);
+        eventHour = eventStartString.slice(11, 13);
+        eventMinutes = eventStartString.slice(15, 17);
+
+        // because currentMonth is only one digit if below 10
+        if(eventMonth.slice(0, 1) === "0"){
+            eventMonth = "" + eventMonth.slice(1);
+        }
+
+
+        eventYear = parseInt(eventYear);
+        eventMonth = parseInt(eventMonth);
+        eventDate = parseInt(eventDate);
+        eventHour = parseInt(eventHour);
+        eventMinutes = parseInt(eventMinutes);
+            
+            eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
+            eventDIV = generateEventDIV(event);
+            console.log("eventDateID: " + eventDateID);
+            
+            var eventDateCell = $("#" + eventDateID);
+            console.log(eventDateCell);
+            eventDateCell.append(eventDIV);        
+
 
     })
 
@@ -239,9 +294,7 @@ function nextMonth(){
         currentDate = 7 - (daysLeftInMonth % 7);
         // console.log("currentDate: " + currentDate);
     }
-    displayYearMonthDate(currentDate, currentMonth, currentYear);
-    displayMonthView(currentMonth, currentYear);
-    displayEventsMonthView();
+    
 }
 
 function nextWeek(){
@@ -272,8 +325,24 @@ function nextWeek(){
     else{
         currentDate += 7;
     }
-    displayYearMonthDate(currentDate, currentMonth, currentYear);
-    displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+    
+}
+
+function previousMonth(){
+    daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
+    // console.log("#############################################");
+    // console.log("daysInPrevMonth: " + daysInPrevMonth);
+    if(currentMonth === 0){
+        currentYear--;
+        currentMonth = 11;
+    }
+    else{
+        currentMonth--;
+    }
+    // console.log("currenMonth: " + currentMonth);
+    currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
+    // console.log("currentDate: " + currentDate);
+    
 }
 
 function previousWeek(){
@@ -293,27 +362,7 @@ function previousWeek(){
     else{
         currentDate -= 7;
     }
-    displayYearMonthDate(currentDate, currentMonth, currentYear);
-    displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
-}
-
-function previousMonth(){
-    daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
-    // console.log("#############################################");
-    // console.log("daysInPrevMonth: " + daysInPrevMonth);
-    if(currentMonth === 0){
-        currentYear--;
-        currentMonth = 11;
-    }
-    else{
-        currentMonth--;
-    }
-    // console.log("currenMonth: " + currentMonth);
-    currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
-    // console.log("currentDate: " + currentDate);
-    displayYearMonthDate(currentDate, currentMonth, currentYear);
-    displayMonthView(currentMonth, currentYear);
-    displayEventsMonthView();
+    
 }
 
 
@@ -381,9 +430,9 @@ function displayWeekView(minutes, hour, day, date, month, year){
         
         for(j = 0; j < 7; j++){
 
-            var columnID = calculateIDWeekView(j, day, date, hoursString, minutesString);
+            var columnID = setIDWeekView(j, day, date, hoursString, minutesString);
             // console.log("dateID: " + columnID);
-            var column = "<td>" + columnID;
+            var column = "<td id='" + columnID + "'>";
 
 
             column = column + "</td>";
@@ -435,8 +484,8 @@ function calculateIDMonthView(year, month, date){
     return "" + year + "-" + month + "-" + date;
 
 }
-
-function calculateIDWeekView(dayToCalculate, day, date, hour, minutes){
+// function that sets the ids in the current week View displayed to the user
+function setIDWeekView(dayToCalculate, day, date, hour, minutes){
 
     var daysinPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear);
     var daysInCurrentMonth = calculateDaysInMonth(currentMonth, currentYear);
@@ -462,6 +511,24 @@ function calculateIDWeekView(dayToCalculate, day, date, hour, minutes){
     return "" + currentYear + "-" + currentMonth + "-" + weekDates[dayToCalculate] + "T" + hour + minutes;
 
 
+}
+
+// function that calculates the id for a certain event in order to check whether that id is currently displayed to the user
+function calculateIDWeekView(year, month, date, hour, minutes){
+
+    if(hour < 10){
+        hour = "0" + hour;
+    }
+
+    if(minutes < 30){
+        minutes = "00"
+    }
+    else{
+        minutes = "30";
+    }
+
+    return "" + year + "-" + month + "-" + date + "T" + hour + minutes;
+    
 }
 
 function hideDateSpans(){
