@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html>
-    <header>
+<html lang="en">
+    <head>
         <meta charset="UTF-8">
         <title>Calendar App</title>
-
-
+        <meta name="author" content="MatrikelNr: 3406999">
+        <meta name="description" content="Calendar App for Web-Engineering Course">
+        <meta name="keywords" content="1.0, HoffentlichGuteNote, WürdenUnsWirklichFreuen, BitteBitte, WirHabenUnsEchtAngestrengt">
+        
         <script
 			  src="https://code.jquery.com/jquery-3.4.1.min.js"
 			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -13,11 +15,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
         <link rel="stylesheet" type="text/css" href="styles.css">
 
-    </header>
+    </head>
 
     <body>
-
-            <body>
                     <div class="ui sidebar inverted vertical menu">
                         <!-- <form action="" method="POST">
                             <label for="shortDescription">Short Description</label>
@@ -38,11 +38,13 @@
 
 
 
+
                                 <div class="two fields">
 
                                   <div class="six wide field">
                                     <label>Event Start</label>
                                     <input placeholder="--:--" type="text" name="startTime" id="startTInput" value="">
+
                                 </div>
 
                                 <div class="twelve wide field">
@@ -58,7 +60,9 @@
 
                                   <div class="six wide field">
                                     <label>Event End</label>
+
                                     <input placeholder="--:--" type="text" name="endTime" id="endTInput" value="">
+
                                   </div>
 
                                   <div class="twelve wide field">
@@ -87,7 +91,9 @@
                                 </div>
 
                                 <div class="field">
+
                                   <lable>Status</label>
+
                                   <div class="ui selection dropdown" id="statusDropdown">
                                       <input type="hidden" id="statusInput" name="gender">
                                         <i class="dropdown icon"></i>
@@ -107,6 +113,7 @@
                                 </div>
 
                                 <div class="field">
+
                                   <lable>Categories</label>
                                   <div class="ui selection multiple dropdown" id="categoryDropdown">
                                       <input type="hidden" id="categoryInput">
@@ -128,6 +135,7 @@
 
 
 
+
                                 <div class=" two fields">
 
                                   <div class="ui primary submit button"
@@ -139,30 +147,89 @@
                                   </div>
                                 </div>
                               </form>
+			    
 
 
 
                     </div>
                     <div class="pusher">
                       <!-- Site content !-->
-                      <div id="Navigation">
-                            <h1>This will be the navigation</h1>
-                            <div id="buttons">
 
-                                <button class="ui left labeled icon button" id="previousButton">
-                                        <i class="left arrow icon"></i>
-                                        Previous
-                                </button>
-                                <h1 class="ui header">Year: <span id="yearDisplay"></span>  -  Month: <span id="monthDisplay">
 
-                                </span>  -  Date: <span id="dateDisplay"></span></h1>
-                                <button class="ui right labeled icon button" id="nextButton">
-                                        <i class="right arrow icon"></i>
-                                        Next
-                                </button>
-                                <button class="ui button" id="createNewEntry">Create New Entry</button>
-                                <button class="ui button" id="weekView">Week View</button>
+                      <div id="categoryContainer">
+                        <div id="categories">
+                          <h3>Categories</h3>
+
+
+                          <div class="ui horizontal list" id="allCategoriesDisplay">
+                              <!-- <div class="item">
+                                <img class="ui avatar image" src="/images/avatar/small/tom.jpg">
+                                <div class="content">
+                                  <div class="header">Tom</div>
+                                  Top Contributor
+                                </div>
+                              </div>
+                              <div class="item">
+                                <img class="ui avatar image" src="/images/avatar/small/christian.jpg">
+                                <div class="content">
+                                  <div class="header">Christian Rocha</div>
+                                  Admin
+                                </div>
+                              </div>
+                              <div class="item">
+                                <img class="ui avatar image" src="/images/avatar/small/matt.jpg">
+                                <div class="content">
+                                  <div class="header">Matt</div>
+                                  Top Rated User
+                                </div>
+                              </div> -->
+
                             </div>
+
+
+                            <!-- <ul id="allCategoriesDisplay">
+                            </ul> -->
+                        </div>
+                        <div id="categoryPostContainer">
+                          <form class="ui form segment" id="categoryPostForm" method="POST">
+                                <div class="field">
+                                    <label>Add new Category</label>
+                                    <input placeholder="Add new category" name="name" type="text" maxlength="30" id="categoryNameInput">
+                                </div>
+                                    <div class="ui primary submit button" id="categoryPostButton">Add Category</div>
+                          </form>
+                        </div>
+
+                      </div>
+
+                      <hr>
+
+                      <div id="navigation">
+                        <div id="yearNavigation">
+                            <button class="ui left labeled icon button" id="previousYearButton">
+                                <i class="left arrow icon"></i>
+                                Previous
+                            </button>
+                            <h1 class="mainDisplay ui header"><span id="yearDisplay"></span></h1>
+                            <button class="ui right labeled icon button" id="nextYearButton">
+                                <i class="right arrow icon"></i>
+                                Next
+                        </button>
+                        </div>
+                        
+                          <div id="monthNavigation">
+                            <button class="ui left labeled icon button" id="previousMonthOrWeekButton">
+                                    <i class="left arrow icon"></i>
+                                    Previous
+                            </button>
+                            <h1 class="mainDisplay ui header"><span id="monthDisplay"></span></h1>
+                            <button class="ui right labeled icon button" id="nextMonthOrWeekButton">
+                                    <i class="right arrow icon"></i>
+                                    Next
+                            </button>
+                            <button class="ui button" id="createNewEntry">Create New Entry</button>
+                            <button class="ui button" id="weekView">Week View</button>
+                          </div>
                         </div>
 
                         <div id="calendar">
@@ -187,12 +254,50 @@
                         </div>
 
                     </div>
-                  </body>
 
 
+                    <div class="ui basic modal" id="deleteCategoryModal">
+                        <div class="ui icon header">
+                          <i class="archive icon"></i>
+                          Delete Category
+                        </div>
+                        <div class="content">
+                          <p>Are you sure you want to delete the Category</p>
+                          <p>The Category will also be removed from all your events</p>
+                        </div>
+                        <div class="actions">
+                          <div class="ui red basic cancel inverted button">
+                            <i class="remove icon"></i>
+                            No
+                          </div>
+                          <div class="ui green ok inverted approve button" id="confirmDeleteCategoryButton">
+                            <i class="checkmark icon"></i>
+                            Yes
+                          </div>
+                        </div>
+                      </div>
 
 
-
+                      <div class="ui basic modal" id="deleteEventModal">
+                          <div class="ui icon header">
+                            <i class="archive icon"></i>
+                            Delete Event
+                          </div>
+                          <div class="content">
+                            <p>Are you sure you want to delete the Event?</p>
+                            <p>The event will be permanently deleted if you press Yes</p>
+                          </div>
+                          <div class="actions">
+                            <div class="ui red basic cancel inverted button">
+                              <i class="remove icon"></i>
+                              No
+                            </div>
+                            <div class="ui green ok inverted approve button" id="confirmDeleteEventButton">
+                              <i class="checkmark icon"></i>
+                              Yes
+                            </div>
+                          </div>
+                        </div>
 
             <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
             <script src="logic.js"></script>

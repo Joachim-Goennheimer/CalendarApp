@@ -1,3 +1,101 @@
+/* basic calendar layout */
+
+body {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+table {
+  /* table-layout: fixed; */
+  /* height: 100%; */
+}
+
+td > div {
+  display: flex;
+}
+
+
+.dayCellMonthView {
+  width: 75px;
+  height: 75px;
+  
+}
+/* categoryDisplay */
+
+
+#categoryContainer {
+  display: flex;
+  justify-content: stretch;
+}
+
+#categories {
+  width: 70%;
+}
+
+#categoryPostContainer {
+  width: 30%;
+}
+
+#allCategoriesDisplay {
+  list-style: none;
+}
+
+.flexCategory {
+  display: flex !important;
+  padding: 5px;
+}
+
+.hideCategory {
+  background-color: gray !important;
+  color: aliceblue;
+}
+
+p:nth-child(1) {
+  width: 50%;
+}
+
+
+/* navigation bar */
+#yearNavigation {
+  display: flex;
+  /* justify-content: space-between; */
+}
+
+#monthNavigation {
+  display: flex;
+  margin-top: -30px;
+}
+
+.ui.button {
+  position: relative;
+  margin-top: 22px;
+}
+
+.mainDisplay {
+  width: 45%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.button {
+  height: 70%;
+}
+
+.currentDateStyle {
+  background-color: coral !important;
+
+}
+
+#weekView {
+  margin-left: auto;
+  margin-right: 2px;
+}
+
+
+
 .red {
   border-color: red !important;
 }
+
+
+
