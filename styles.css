@@ -1,5 +1,3 @@
-
-
 /* basic calendar layout */
 
 body {
@@ -98,5 +96,6 @@ p:nth-child(1) {
 .red {
   border-color: red !important;
 }
+
 
 

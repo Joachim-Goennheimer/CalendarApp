@@ -1,5 +1,6 @@
 var today = new Date();
 // getMonth() function starts counting from zero
+
 var currentMonth = today.getMonth();
 var currentYear = today.getFullYear();
 var currentDate = today.getDate();
@@ -40,8 +41,24 @@ var titleInput = $("#titleInput");
 var organizerInput = $('#organizerInput');
 var statusInput = $('#statusDropdown');
 var categoryInput = $('#categoryInput');
+imageInput = $("#imageInput");
+startDate = $('#startDate');
+endDate = $('#endDate');
 $('#statusDropdown').dropdown();
-$('#categoryInput').popup();
+$('#categoryDropdown').dropdown();
+
+// $('.ui.form').form({
+//   inline: true,
+//   fields: {
+//     dateInput: {
+//       identifier: 'dateInput',
+//       rules: [{
+//         type: "regExp[/^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d$/]",
+//         prompt: "Please select a valid mm/dd/yyyy date"
+//       }]
+//     }
+//   }
+// });
 
 // category Form listeners
 var categoryPostForm = $("#categoryPostForm");
@@ -59,6 +76,7 @@ var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oc
 // {"id": 5, "name": "music"}];
 var allCategories = [];
 var hideCategories = [];
+
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
 var inMonthView = true;
@@ -66,7 +84,8 @@ var inMonthView = true;
 var eventData;
 
 $(document).ready(function(){
-    
+
+
     displayMonthView(currentMonth, currentYear);
     displayYearMonthDate(currentDate, currentMonth, currentYear);
 
@@ -102,6 +121,7 @@ function loadData(){
     })
 
 }
+
 
 function loadEventData(){
     console.log("loading events");
@@ -346,8 +366,9 @@ function displayEventsWeekView(){
         eventDate = parseInt(eventDate);
         eventHour = parseInt(eventHour);
         eventMinutes = parseInt(eventMinutes);
-            
+
             eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
+
             eventDIV = generateEventDIV(event, hideEvent);
             
             var eventDateCell = $("#" + eventDateID);
@@ -369,6 +390,7 @@ function displayEventsWeekView(){
                 }).modal("show");
                 
             })
+
 
 
     })
@@ -412,11 +434,11 @@ function nextMonth(){
         currentDate = 7 - (daysLeftInMonth % 7);
         // console.log("currentDate: " + currentDate);
     }
-    
+
 }
 
 function nextWeek(){
-    
+
     var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
     // console.log("*******************************************");
     // console.log("daysInMonth: " + daysInMonth);
@@ -443,7 +465,7 @@ function nextWeek(){
     else{
         currentDate += 7;
     }
-    
+
 }
 
 function previousMonth(){
@@ -460,7 +482,7 @@ function previousMonth(){
     // console.log("currenMonth: " + currentMonth);
     currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
     // console.log("currentDate: " + currentDate);
-    
+
 }
 
 function previousWeek(){
@@ -474,23 +496,23 @@ function previousWeek(){
         else{
             currentMonth--;
         }
-        
+
         currentDate = daysInPrevMonth - (7 - currentDate);
     }
     else{
         currentDate -= 7;
     }
-    
+
 }
 
 function displayWeekView(minutes, hour, day, date, month, year){
 
     inMonthView = false;
-    
+
     timeTracker = new Date();
     timeTracker.setHours(00);
     timeTracker.setMinutes(00);
-    
+
     // console.log("hours: " + hours);
     // console.log("minutes: " + minutes);
 
@@ -528,7 +550,7 @@ function displayWeekView(minutes, hour, day, date, month, year){
         else{
             timeTracker.setMinutes(30);
         }
-        
+
         for(j = 0; j < 7; j++){
 
             var columnID = setIDWeekView(j, day, date, hoursString, minutesString);
@@ -629,7 +651,7 @@ function calculateIDWeekView(year, month, date, hour, minutes){
     }
 
     return "" + year + "-" + month + "-" + date + "T" + hour + minutes;
-    
+
 }
 
 function hideDateSpans(){
@@ -917,173 +939,300 @@ function deleteEvent(eventID){
 
 }
 
-function postFormListeners(){
+    // form stuff Leon
 
+function postFormListeners(){ 
+  
     titleInput.change(function() {
-        getAndCheckTitleInput();
-    
-      })
-    
-      organizerInput.change(function() {
-      checkAndGetOrganizerInput();
-    })
-    
-    startTimeInput.change(function() {
-        getAndCheckStartInput();
-      })
-    
-      endTimeInput.change(function() {
-        getAndCheckEndInput();
-      })
-    
+    getAndCheckTitleInput();
+
+  })
+  
+    organizerInput.change(function() {
+  checkAndGetOrganizerInput();
+})
+  
+   startTimeInput.change(function() {
+   getAndCheckStartInput();
+ })
+  
+  endTimeInput.change(function() {
+  getAndCheckEndInput();
+})
+  
       statusInput.change(function() {
-        getStatusInput();
-      })
-    
-        
-        
-          // remove popup after mouse leaves submit button
-      document.getElementById('submitButton').onmouseout = function(event) {
-        submitButton.popup('destroy');
-    }
-        
-        
-    submitButton.click(function() {
-    
-    var locationValue = document.getElementById("locationInput").value;
-    var websiteValue = document.getElementById("websiteInput").value;
-    var alldayValue = $('input[name=allday]').is(':checked');
-    
-        // reformat time input and add it if allday is true
-        if(alldayValue) {
-            startTimeInput = "00:00";
-            endTimeInput = "23:59";
-        }
-    
-    
-        // get and get values of all mandatory fields
-        // if not given mark them as incomplete
-        var titleValue = getAndCheckTitleInput();
-        var organizerValue = checkAndGetOrganizerInput();
-        var startTimeValue = getAndCheckStartInput();
-        var endTimeValue = getAndCheckEndInput();
-        var statusValue = getStatusInput();
-    
-        var inputIsValid = true;
-    
-        // check if all data was entered correctly
-        if(!titleValue || !organizerInput || !startTimeInput || !endTimeInput || !statusInput) {
-            inputIsValid = false;
-    
-            submitButton.popup();
-            submitButton.popup('show');
-        }
-    
-    
-        // if all the necessary input is give correctly a request can be made
-        if(inputIsValid) {
-    
-            // add time formatting
-            startTimeInput = "2019-06-24T" + startTimeInput;
-            endTimeInput = "2019-06-24T" + endTimeInput;
-    
-    
-            // make request with data
-            var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTimeValue + '", "end": "' + endTimeValue + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '" }';
-            console.log(dummyRequest);
-        }
-    
-        // $.post("https://dhbw.cheekbyte.de/calendar/500/events", JSON.parse(requestData), function(status) {
-        //   console.log(status);
-        // });
-    
+    getStatusInput();
+  })
+
+    // remove popup after mouse leaves submit button
+  document.getElementById('submitButton').onmouseout = function(event) {
+    submitButton.popup('destroy');
+}
+  
+          submitButton.click(function() {
+
+
+
+        var locationValue = document.getElementById("locationInput").value;
+        var websiteValue = document.getElementById("websiteInput").value;
+        var alldayValue = $('input[name=allday]').is(':checked');
+
+            // reformat time input and add it if allday is true
+            if(alldayValue) {
+              startTimeInput = "00:00";
+              endTimeInput = "23:59";
+            }
+
+
+            // get and get values of all mandatory fields
+            // if not given mark them as incomplete
+            var titleValue = getAndCheckTitleInput();
+            var organizerValue = checkAndGetOrganizerInput();
+            var startTimeValue = getAndCheckStartInput();
+            var endTimeValue = getAndCheckEndInput();
+            var statusValue = getStatusInput();
+
+
+            var inputIsValid = true;
+
+            // check if all data was entered correctly
+            if(!titleValue || !organizerValue || !startTimeValue || !endTimeValue || !statusValue) {
+              inputIsValid = false;
+
+              submitButton.popup();
+              submitButton.popup('show');
+
+
+            }
+
+            // check if times are valid
+            checkTimeValidity();
+
+
+            // check if dates are valid
+            checkDateValidity();
+
+
+            // check if image is valid
+            checkImageAndGetB64();
+
+
+
+            // else {
+            //   console.log("Start time: " + startTimeValue);
+            //   console.log("End time: " + endTimeValue);
+            //
+            //   if(startTimeValue.subtring(0,1) <= endTimeValue.substring(3,4)) {
+            //     alert(1);
+            //   } else if(startTimeValue.subtring(0,1) <= endTimeValue.substring(3,4)) {
+            //     alert(2);
+            //   } else if(startTimeValue == endTimeValue) {
+            //     alert(3);
+            //   } else {
+            //     alert(4);
+            //     inputIsValid = false;
+            //   }
+            //   submitButton.popup();
+            //   submitButton.popup('show');
+            //
+            // }
+
+
+            // if all the necessary input is give correctly a request can be made
+            if(inputIsValid) {
+
+
+
+              // make request with data
+              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTimeValue + '", "end": "' + endTimeValue + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '" }';
+              console.log(dummyRequest);
+            }
+
+            // $.post("https://dhbw.cheekbyte.de/calendar/500/events", JSON.parse(requestData), function(status) {
+            //   console.log(status);
+            // });
+
     });
+  
+  
 }
 
-// check current input data
+
+    // check current input data
 function getAndCheckTitleInput() {
 
-    var titleInputValue = document.getElementById("titleInput").value;
-    if(titleInputValue == "") {
-        document.getElementById('titleInput').classList.add("red");
-        return false;
-    } else {
-        document.getElementById('titleInput').classList.remove("red");
-        return titleInputValue;
-    }
-    }
+  var titleInputValue = document.getElementById("titleInput").value;
+  if(titleInputValue == "") {
+    document.getElementById('titleInput').classList.add("red");
+    return false;
+  } else {
+    document.getElementById('titleInput').classList.remove("red");
+    return titleInputValue;
+  }
+}
+
 
 function checkAndGetOrganizerInput() {
 
-var organizerInputValue = document.getElementById("organizerInput").value;
-if (organizerInputValue == "") {
+  var organizerInputValue = document.getElementById("organizerInput").value;
+  if (organizerInputValue == "") {
 
     inputIsValid = false;
     document.getElementById('organizerInput').classList.add("red");
     return false;
-} else {
+  } else {
 
     document.getElementById('organizerInput').classList.remove("red");
     return organizerInputValue;
-    }
+  }
 
 }
+
 
 function getAndCheckStartInput() {
-    var startTimeInputValue = document.getElementById("startTInput").value;
-    var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
-  
-    if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
-  
-      document.getElementById('startTInput').classList.add("red");
-      inputIsValid = false;
-    } else {
-  
-      document.getElementById('startTInput').classList.remove("red");
-      return startTimeInputValue;
-    }
+  var startTimeInputValue = document.getElementById("startTInput").value;
+  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+
+  if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
+
+    document.getElementById('startTInput').classList.add("red");
+    return false;
+  } else {
+
+    document.getElementById('startTInput').classList.remove("red");
+    return startTimeInputValue;
   }
-    
-  
-  
+}
+ 
+
 function getAndCheckEndInput() {
-    var endTimeInputValue = document.getElementById("endTInput").value;
-    var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
-  
-    if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
-  
-      document.getElementById('endTInput').classList.add("red");
-      return false;
-    } else {
-      document.getElementById('endTInput').classList.remove("red");
-      return endTimeInputValue;
-    }
+  var endTimeInputValue = document.getElementById("endTInput").value;
+  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+
+  if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
+
+    document.getElementById('endTInput').classList.add("red");
+    return false;
+  } else {
+    document.getElementById('endTInput').classList.remove("red");
+    return endTimeInputValue;
+  }
 }
-    
   
-  
+
+
 function getStatusInput() {
-    var statusInputValue = $('#statusDropdown').dropdown('get value');
-  
-    if (statusInputValue == "") {
-  
-      document.getElementById('statusDropdown').classList.add("red");
-    } else {
-  
-      document.getElementById('statusDropdown').classList.remove("red");
-    }
-    return statusInputValue;
+  var statusInputValue = $('#statusDropdown').dropdown('get value');
+
+  if (statusInputValue == "") {
+
+    document.getElementById('statusDropdown').classList.add("red");
+  } else {
+
+    document.getElementById('statusDropdown').classList.remove("red");
+  }
+  return statusInputValue;
 }
-    
-  
-  
-      
-        // function checkInputLength(input, length) {
-    //
-    //   if(input.length < length + 1) {
-    //     console.log("String has valid length");
-    //   } else {
-    //     console.log("Invalid length");
-    //   }
-    //
-    // }
+
+
+
+
+function checkDateValidity() {
+  var startDateValue = document.getElementById('startDate').value;
+  var endDateValue = document.getElementById('endDate').value;
+
+  if(startDateValue > endDateValue) {
+    document.getElementById('startDate').classList.add("red");
+    document.getElementById('endDate').classList.add("red");
+
+
+  } else {
+    document.getElementById('startDate').classList.remove("red");
+    document.getElementById('endDate').classList.remove("red");
+
+
+  }
+
+}
+  startDate.change(function() {
+    checkDateValidity();
+  })
+  endDate.change(function() {
+    checkDateValidity();
+  })
+
+function checkTimeValidity() {
+  startTimeValue = getAndCheckStartInput();
+  endTimeValue = getAndCheckEndInput();
+
+  if(!startTimeValue || !endTimeValue) {
+    return false;
+  }
+
+  startInt1 = parseInt(startTimeValue.toString().substring(0,2), 10);
+  startInt2 = parseInt(startTimeValue.toString().substring(3,6), 10);
+
+  endInt1 = parseInt(endTimeValue.toString().substring(0,2), 10);
+  endInt2 = parseInt(endTimeValue.toString().substring(3,6), 10);
+  if(startInt1 > endInt1) {
+  } else if(startInt1 == endInt1 && startInt2 > endInt2) {
+  } else {
+    return true;
+  }
+  document.getElementById('startTInput').classList.add("red");
+  document.getElementById('endTInput').classList.add("red");
+  return false;
+
+
+}
+
+
+
+
+function checkImageAndGetB64() {
+
+  var imagePath = document.getElementById('imageInput');
+
+
+// // working
+  // function toDataURL(imagePath, callback) {
+  //   var xhr = new XMLHttpRequest();
+  //   xhr.onload = function() {
+  //     var reader = new FileReader();
+  //     reader.onloadend = function() {
+  //       callback(reader.result, xhr.response.size);
+  //     }
+  //     reader.readAsDataURL(xhr.response);
+  //   };
+  //   xhr.open('GET', imagePath);
+  //   xhr.responseType = 'blob';
+  //   xhr.withCredentials = true;
+  //   xhr.send();
+  //
+  // }
+  //
+  // toDataURL(imagePath, function(dataUrl, size) {
+  //
+  //   // localStorage.setItem('size', size);
+  //   // localStorage.setItem('imageB64', dataUrl);
+  //
+  // })
+
+
+  // var size = localStorage.getItem('size');
+  // var imageB64 = localStorage.getItem('imageB64');
+  // localStorage.clear();
+  //
+  // if(size > 500000 || size == 0) {
+  //   document.getElementById('imageInput').classList.add("red");
+  //   return false;
+  // } else {
+  //   document.getElementById('imageInput').classList.remove("red");
+  //   return imageB64;
+  // }
+
+}
+
+
+
+
