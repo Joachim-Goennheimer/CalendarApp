@@ -1,60 +1,67 @@
-today = new Date();
+var today = new Date();
 // getMonth() function starts counting from zero
-currentMonth = today.getMonth();
-currentYear = today.getFullYear();
-currentDate = today.getDate();
-currentDay = today.getDay();
-currentHour = today.getHours();
-currentMinutes = today.getMinutes();
-yearDisplay = $("#yearDisplay");
-monthDisplay = $("#monthDisplay");
-dateDisplay = $("#dateDisplay");
-timeHeader = $("#timeHeader");
-calendarBody = $("#calendarBody");
-nextButton = $("#nextButton");
-previousButton = $("#previousButton");
-createNewEntryButton = $("#createNewEntry");
+var currentMonth = today.getMonth();
+var currentYear = today.getFullYear();
+var currentDate = today.getDate();
+var currentDay = today.getDay();
+var currentHour = today.getHours();
+var currentMinutes = today.getMinutes();
+var yearDisplay = $("#yearDisplay");
+var monthDisplay = $("#monthDisplay");
+var dateDisplay = $("#dateDisplay");
+var timeHeader = $("#timeHeader");
+var calendarBody = $("#calendarBody");
+var nextMonthOrWeekButton = $("#nextMonthOrWeekButton");
+var previousMonthOrWeekButton = $("#previousMonthOrWeekButton");
+var nextYearButton = $("#nextYearButton");
+var previousYearButton = $("#previousYearButton");
+
+var createNewEntryButton = $("#createNewEntry");
 
 // category Listeners
 var allCategoriesDisplay = $("#allCategoriesDisplay");
 
 // dateSpanListeners for weekView
-sundayDateSpan = $("#sundayDateSpan");
-mondayDateSpan = $("#mondayDateSpan");
-tuesdayDateSpan = $("#tuesdayDateSpan");
-wednesdayDateSpan = $("#wednesdayDateSpan");
-thursdayDateSpan = $("#thursdayDateSpan");
-fridayDateSpan = $("#fridayDateSpan");
-saturdayDateSpan = $("#saturdayDateSpan");
-weekViewButton = $("#weekView");
+var sundayDateSpan = $("#sundayDateSpan");
+var mondayDateSpan = $("#mondayDateSpan");
+var tuesdayDateSpan = $("#tuesdayDateSpan");
+var wednesdayDateSpan = $("#wednesdayDateSpan");
+var thursdayDateSpan = $("#thursdayDateSpan");
+var fridayDateSpan = $("#fridayDateSpan");
+var saturdayDateSpan = $("#saturdayDateSpan");
+var weekViewButton = $("#weekView");
 
 
 // input Form listeners
-submitButton = $("#submitButton");
-startTimeInput = $("#startTInput");
-endTimeInput = $("#endTInput");
-titleInput = $("#titleInput");
-organizerInput = $('#organizerInput');
-statusInput = $('#statusDropdown');
-categoryInput = $('#categoryInput');
+var submitButton = $("#submitButton");
+var startTimeInput = $("#startTInput");
+var endTimeInput = $("#endTInput");
+var titleInput = $("#titleInput");
+var organizerInput = $('#organizerInput');
+var statusInput = $('#statusDropdown');
+var categoryInput = $('#categoryInput');
 $('#statusDropdown').dropdown();
 $('#categoryInput').popup();
 
 // category Form listeners
-firstload = true;
-categoryPostForm = $("#categoryPostForm");
-categoryPostButton = $("#categoryPostButton");
-categoryNameInput = $("#categoryNameInput");
+var categoryPostForm = $("#categoryPostForm");
+var categoryPostButton = $("#categoryPostButton");
+var categoryNameInput = $("#categoryNameInput");
+var deleteCategoryModal = $("#deleteCategoryModal");
+var confirmDeleteCategoryButton = $("#confirmDeleteCategoryButton");
+
+var deleteEventModal = $("#deleteEventModal");
+var confirmDeleteEventButton = $("#confirmDeleteEventButton");
 
 
-months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
 // var allCategories = [{"id": 1, "name": "family"}, {"id": 2, "name": "church"}, {"id": 3, "name": "sport"}, {"id": 4, "name": "university"},
 // {"id": 5, "name": "music"}];
 var allCategories = [];
-var selectedCategories = [];
+var hideCategories = [];
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
-inMonthView = true;
+var inMonthView = true;
 
 var eventData;
 
@@ -85,7 +92,6 @@ function loadData(){
     loadCategoryData().then(function(message){
         loadEventData().then(function(message){
 
-            console.log(allCategories);
             displayCategories();
             displayEventsMonthView();
             
@@ -152,6 +158,7 @@ function displayMonthView(month, year){
     calendarBody.empty();
     tableContent = "";
     daysInMonth = calculateDaysInMonth(month, year);
+    var currentDateID;
     let startDay = (new Date(year, month)).getDay();
 
     dateCounter = 1;
@@ -164,7 +171,7 @@ function displayMonthView(month, year){
 
             // empty cell
             if(i === 0 && j < startDay){
-                column = "<td>";
+                column = "<td class='dayCellMonthView'>";
 
             }
             // normal entries
@@ -172,12 +179,12 @@ function displayMonthView(month, year){
                 // adding id to column
                 var columnID = calculateIDMonthView(year, month, dateCounter);
                 // console.log("columnID: " + columnID);
-                column = "<td id='" + columnID + "'>";
+                column = "<td id='" + columnID + "' class='dayCellMonthView'>";
                 column = column + "<h1>" + dateCounter + "</h1>";
                 dateCounter++;
             }
             else{
-                column = "<td>";
+                column = "<td class='dayCellMonthView'>";
             }
 
             column = column + "</td>";
@@ -191,9 +198,12 @@ function displayMonthView(month, year){
 
     calendarBody.append(tableContent);
 
+    // mark current date
+
+    currentDateID = calculateIDMonthView(currentYear, currentMonth, currentDate);
+
+    $("#" + currentDateID).addClass("currentDateStyle");
 }
-
-
 
 function displayEventsMonthView(){
 
@@ -206,8 +216,34 @@ function displayEventsMonthView(){
     var eventDateID;
     var eventDIV;
 
+    var hideEvent;
+
+
+    console.log("hideCategories: " + hideCategories)
+
     eventData.forEach(function(event){
 
+        hideEvent = true;
+        // check whether all of the events categories are in the hideCategoryArray
+
+        console.log("Event: " + event.title + " has categories: ");
+
+        if(event.categories.length > 0){
+            event.categories.forEach(function(category){
+
+                console.log(category.id);
+                console.log("**********************");
+
+                if(!hideCategories.includes(category.id)){
+                    console.log("hideEvent set to false");
+                    hideEvent = false;
+                }
+            })
+        }
+        else{
+            hideEvent = false;
+        }
+        
         eventStartString = event.start;
 
         eventYear = eventStartString.slice(0, 4);
@@ -227,14 +263,31 @@ function displayEventsMonthView(){
         // if(eventYear === currentYear && eventMonth === currentMonth){
 
             eventDateID = calculateIDMonthView(eventYear, eventMonth, eventDate);
-            eventDIV = generateEventDIV(event);
+            eventDIV = generateEventDIV(event, hideEvent);
             var eventDateCell = $("#" + eventDateID);
 
-            // cell cleared first because event might already be displayed
-            eventDateCell.empty();
+        // cell cleared first because event might already be displayed
+
+            var formerEventDiv = $("#" + event.id);
+            formerEventDiv.remove();
+
+            // eventDateCell.empty();
             eventDateCell.append(eventDIV);
+            $("#deleteSpan" + event.id).on("click", function(){
+
+                deleteEventModal.modal({
+                    onApprove : function(){
+                        $("#" + event.id).remove();
+                        deleteEvent(event.id);
+                    }
+    
+                }).modal("show");
+                
+            })
+
         // }
 
+        
     })
 
 }
@@ -249,7 +302,30 @@ function displayEventsWeekView(){
     var eventDateID;
     var eventDIV;
 
+    var hideEvent;
+
     eventData.forEach(function(event){
+
+        hideEvent = true;
+        // check whether all of the events categories are in the hideCategoryArray
+
+        console.log("Event: " + event.title + " has categories: ");
+
+        if(event.categories.length > 0){
+            event.categories.forEach(function(category){
+
+                console.log(category.id);
+                console.log("**********************");
+
+                if(!hideCategories.includes(category.id)){
+                    console.log("hideEvent set to false");
+                    hideEvent = false;
+                }
+            })
+        }
+        else{
+            hideEvent = false;
+        }
 
         eventStartString = event.start;
 
@@ -272,17 +348,40 @@ function displayEventsWeekView(){
         eventMinutes = parseInt(eventMinutes);
             
             eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
-            eventDIV = generateEventDIV(event);
+            eventDIV = generateEventDIV(event, hideEvent);
             
             var eventDateCell = $("#" + eventDateID);
-            eventDateCell.empty();
-            eventDateCell.append(eventDIV);        
+
+            var formerEventDiv = $("#" + event.id);
+            formerEventDiv.remove();
+            console.log("appending: " + eventDIV + " to " + eventDateCell);
+
+            eventDateCell.append(eventDIV);
+
+            $("#deleteSpan" + event.id).on("click", function(){
+
+                deleteEventModal.modal({
+                    onApprove : function(){
+                        $("#" + event.id).remove();
+                        deleteEvent(event.id);
+                    }
+    
+                }).modal("show");
+                
+            })
 
 
     })
 
 }
 
+function nextYear(){
+    currentYear++;
+}
+
+function previousYear(){
+    currentYear--;
+}
 
 function nextMonth(){
     var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
@@ -544,7 +643,22 @@ function hideDateSpans(){
 }
 
 function calendarBasicLayoutListeners(){
-    nextButton.click(function(){
+
+    nextYearButton.click(function(){
+        nextYear();
+        displayYearMonthDate(currentDate, currentMonth, currentYear);
+        displayMonthView(currentMonth, currentYear);
+        displayEventsMonthView();
+    });
+
+    previousYearButton.click(function(){
+        previousYear();
+        displayYearMonthDate(currentDate, currentMonth, currentYear);
+        displayMonthView(currentMonth, currentYear);
+        displayEventsMonthView();
+    })
+
+    nextMonthOrWeekButton.click(function(){
         if(inMonthView){
             nextMonth();
             displayYearMonthDate(currentDate, currentMonth, currentYear);
@@ -559,7 +673,7 @@ function calendarBasicLayoutListeners(){
         }
     });
 
-    previousButton.click(function(){
+    previousMonthOrWeekButton.click(function(){
         if(inMonthView){
             previousMonth();
             displayYearMonthDate(currentDate, currentMonth, currentYear);
@@ -591,12 +705,21 @@ function calendarBasicLayoutListeners(){
     })
 }
 
-function generateEventDIV(event){
+function generateEventDIV(event, hideEvent){
 
-    var htmlString = '<div id="' + event.id + '"';
-    htmlString += '<h3>' + event.title + '</h3>';
+    var deleteSpan;
+    var htmlString;
+    if(!hideEvent){
 
-    htmlString += '</div>';
+        deleteSpan = '<span id="deleteSpan' + event.id + '"><i class="trash alternate icon"></i></span>';
+        htmlString = '<div id="' + event.id + '">';
+        // htmlString += '<h3>' + eventDate + '</h3>';
+        htmlString += deleteSpan;
+        htmlString += '<p>' + event.title + '</p>';
+
+        htmlString += '</div>';
+    }
+    
 
     return htmlString;
 
@@ -640,6 +763,8 @@ function arrayRemove(arr, value) {
 // Categories: Create and Delete and Display
 
 function displayCategories(){
+    // console.log("displayCategories()")
+    // console.log("selectedCategories:" + selectedCategories);
 
     var categoryItem;
     allCategoriesDisplay.empty();
@@ -651,24 +776,41 @@ function displayCategories(){
 
         // click listener for selecting and deselecting a category
         $("#" + category.id).bind("click", function(){
-            if(selectedCategories.includes(category)){
-                console.log(category.name + " is in selected Categories");
-                selectedCategories = arrayRemove(selectedCategories, category);
-                $("#" + category.id).removeClass("selectCategory");
+            if(hideCategories.includes(category.id)){
+                hideCategories = arrayRemove(hideCategories, category.id);
+                $("#" + category.id).removeClass("hideCategory");
+                if(inMonthView){
+                    displayEventsMonthView();
+                }
+                else{
+                    displayEventsWeekView();
+                }
             }
             else{
-                selectedCategories.push(category);
-                $("#" + category.id).addClass("selectCategory");
+                hideCategories.push(category.id);
+                $("#" + category.id).addClass("hideCategory");
+                if(inMonthView){
+                    displayEventsMonthView();
+                }
+                else{
+                    displayEventsWeekView();
+                }
             }
         })
         // click listener for deleting a category
 
         $("#deleteSpan" + category.id).bind("click", function(){
-            deleteCategory(category.id);
+            deleteCategoryModal.modal({
+                onApprove : function(){
+                    deleteCategory(category.id);
+                }
+
+            }).modal("show");
         })
     })
 
 }
+
 
 
 function postCategory(){
@@ -707,33 +849,47 @@ function deleteCategory(categoryID){
         },
       }).done(function(response){
           console.log(response);
+          deleteCategoryFromEvents();
           loadData();
       })
 
 }
 
-// only used when calendar is loaded the first time
-function selectAllCategories(){
-    selectedCategories = [];
-    allCategories.forEach(function(category){
-        selectedCategories.push(category);
-    })
+function deleteCategoryFromEvents(){
+    // to be implemented
 }
-
 
 // HTML creators
 
 function generateCategoryItem(category){
 
-    var nameParagraph = '<p>' + category.name + '</p>';
-    var deleteSpan = '<span id="deleteSpan' + category.id + '">X</span>';
 
-    var htmlString = '<li id="' + category.id + '"';
-    htmlString += nameParagraph;
-    htmlString += deleteSpan;
+    
 
-    htmlString += '</li>';
-    console.log(htmlString);
+    // <div class="item">
+    // <img class="ui avatar image" src="/images/avatar/small/tom.jpg">
+    // <div class="content">
+    //     <div class="header">Tom</div>
+    //     Top Contributor
+    // </div>
+
+
+    var style = 'style="background-color: #2185d0; color: #fff; margin-bottom: 10px"';
+
+    var nameParagraph = '<p style="color: #fff">' + category.name + '</p>';
+    var deleteSpan = '<span id="deleteSpan' + category.id + '"><i class="trash alternate icon"></i></span>';
+
+    // var htmlString = '<li ' + style + 'id="' + category.id + '">';
+    // htmlString += deleteSpan;
+    // htmlString += nameParagraph;
+    // htmlString += '</li>';
+
+    var htmlString = '<div ' + style + ' class="item" id="' + category.id + '">';
+    htmlString += '<div class="content">'
+    + '<div class="flexCategory header">' + deleteSpan + nameParagraph + '</div>';
+    // htmlString += deleteSpan;
+    htmlString += '</div>';
+    // console.log(htmlString);
 
     return htmlString;
 }
@@ -746,6 +902,20 @@ function generateCategoryItem(category){
 // *************************************************************************************************
 // Entries: Create, Edit and Delete
 
+function deleteEvent(eventID){
+
+    $.ajax({
+        type: "DELETE",
+        url: "https://dhbw.cheekbyte.de/calendar/500/events/" + eventID,
+        success: function(){
+            console.log("Successfully deleted event");
+        },
+      }).done(function(response){
+          console.log(response);
+          loadData();
+      })
+
+}
 
 function postFormListeners(){
 
@@ -830,8 +1000,6 @@ function postFormListeners(){
     });
 }
 
-
-
 // check current input data
 function getAndCheckTitleInput() {
 
@@ -878,7 +1046,7 @@ function getAndCheckStartInput() {
     
   
   
-  function getAndCheckEndInput() {
+function getAndCheckEndInput() {
     var endTimeInputValue = document.getElementById("endTInput").value;
     var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
   
@@ -890,11 +1058,11 @@ function getAndCheckStartInput() {
       document.getElementById('endTInput').classList.remove("red");
       return endTimeInputValue;
     }
-  }
+}
     
   
   
-  function getStatusInput() {
+function getStatusInput() {
     var statusInputValue = $('#statusDropdown').dropdown('get value');
   
     if (statusInputValue == "") {
@@ -905,7 +1073,7 @@ function getAndCheckStartInput() {
       document.getElementById('statusDropdown').classList.remove("red");
     }
     return statusInputValue;
-  }
+}
     
   
   

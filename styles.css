@@ -1,5 +1,30 @@
 
+
+/* basic calendar layout */
+
+body {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+table {
+  /* table-layout: fixed; */
+  /* height: 100%; */
+}
+
+td > div {
+  display: flex;
+}
+
+
+.dayCellMonthView {
+  width: 75px;
+  height: 75px;
+  
+}
 /* categoryDisplay */
+
+
 #categoryContainer {
   display: flex;
   justify-content: stretch;
@@ -17,13 +42,14 @@
   list-style: none;
 }
 
-.selectCategory {
-  background-color: darkslategray;
-  color: aliceblue;
+.flexCategory {
+  display: flex !important;
+  padding: 5px;
 }
 
-li {
-  display: flex;
+.hideCategory {
+  background-color: gray !important;
+  color: aliceblue;
 }
 
 p:nth-child(1) {
@@ -32,9 +58,14 @@ p:nth-child(1) {
 
 
 /* navigation bar */
-#buttons {
+#yearNavigation {
   display: flex;
   /* justify-content: space-between; */
+}
+
+#monthNavigation {
+  display: flex;
+  margin-top: -30px;
 }
 
 .ui.button {
@@ -42,7 +73,7 @@ p:nth-child(1) {
   margin-top: 22px;
 }
 
-#mainDisplay {
+.mainDisplay {
   width: 45%;
   vertical-align: middle;
   text-align: center;
@@ -50,6 +81,11 @@ p:nth-child(1) {
 
 .button {
   height: 70%;
+}
+
+.currentDateStyle {
+  background-color: coral !important;
+
 }
 
 #weekView {
