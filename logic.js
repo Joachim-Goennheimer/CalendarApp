@@ -15,6 +15,10 @@ nextButton = $("#nextButton");
 previousButton = $("#previousButton");
 createNewEntryButton = $("#createNewEntry");
 
+// category Listeners
+var allCategoriesDisplay = $("#allCategoriesDisplay");
+
+// dateSpanListeners for weekView
 sundayDateSpan = $("#sundayDateSpan");
 mondayDateSpan = $("#mondayDateSpan");
 tuesdayDateSpan = $("#tuesdayDateSpan");
@@ -25,7 +29,7 @@ saturdayDateSpan = $("#saturdayDateSpan");
 weekViewButton = $("#weekView");
 
 
-
+// input Form listeners
 submitButton = $("#submitButton");
 startTimeInput = $("#startTInput");
 endTimeInput = $("#endTInput");
@@ -36,9 +40,18 @@ categoryInput = $('#categoryInput');
 $('#statusDropdown').dropdown();
 $('#categoryInput').popup();
 
+// category Form listeners
+firstload = true;
+categoryPostForm = $("#categoryPostForm");
+categoryPostButton = $("#categoryPostButton");
+categoryNameInput = $("#categoryNameInput");
 
 
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
+// var allCategories = [{"id": 1, "name": "family"}, {"id": 2, "name": "church"}, {"id": 3, "name": "sport"}, {"id": 4, "name": "university"},
+// {"id": 5, "name": "music"}];
+var allCategories = [];
+var selectedCategories = [];
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
 inMonthView = true;
@@ -46,248 +59,46 @@ inMonthView = true;
 var eventData;
 
 $(document).ready(function(){
-
-    // form stuff Leon
-    
-    
-    
-    // check current input data
-function getAndCheckTitleInput() {
-
-  var titleInputValue = document.getElementById("titleInput").value;
-  if(titleInputValue == "") {
-    document.getElementById('titleInput').classList.add("red");
-    return false;
-  } else {
-    document.getElementById('titleInput').classList.remove("red");
-    return titleInputValue;
-  }
-}
-  titleInput.change(function() {
-    getAndCheckTitleInput();
-
-  })
-
-function checkAndGetOrganizerInput() {
-
-  var organizerInputValue = document.getElementById("organizerInput").value;
-  if (organizerInputValue == "") {
-
-    inputIsValid = false;
-    document.getElementById('organizerInput').classList.add("red");
-    return false;
-  } else {
-
-    document.getElementById('organizerInput').classList.remove("red");
-    return organizerInputValue;
-  }
-
-}
-  organizerInput.change(function() {
-  checkAndGetOrganizerInput();
-})
-
-function getAndCheckStartInput() {
-  var startTimeInputValue = document.getElementById("startTInput").value;
-  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
-
-  if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
-
-    document.getElementById('startTInput').classList.add("red");
-    inputIsValid = false;
-  } else {
-
-    document.getElementById('startTInput').classList.remove("red");
-    return startTimeInputValue;
-  }
-}
-  startTimeInput.change(function() {
-   getAndCheckStartInput();
- })
-
-
-function getAndCheckEndInput() {
-  var endTimeInputValue = document.getElementById("endTInput").value;
-  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
-
-  if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
-
-    document.getElementById('endTInput').classList.add("red");
-    return false;
-  } else {
-    document.getElementById('endTInput').classList.remove("red");
-    return endTimeInputValue;
-  }
-}
-  endTimeInput.change(function() {
-  getAndCheckEndInput();
-})
-
-
-function getStatusInput() {
-  var statusInputValue = $('#statusDropdown').dropdown('get value');
-
-  if (statusInputValue == "") {
-
-    document.getElementById('statusDropdown').classList.add("red");
-  } else {
-
-    document.getElementById('statusDropdown').classList.remove("red");
-  }
-  return statusInputValue;
-}
-  statusInput.change(function() {
-    getStatusInput();
-  })
-
-
-    
-      // function checkInputLength(input, length) {
-  //
-  //   if(input.length < length + 1) {
-  //     console.log("String has valid length");
-  //   } else {
-  //     console.log("Invalid length");
-  //   }
-  //
-  // }
-    
-    
-      // remove popup after mouse leaves submit button
-  document.getElementById('submitButton').onmouseout = function(event) {
-    submitButton.popup('destroy');
-}
-    
-    
-    
-    
-    
-        submitButton.click(function() {
-
-        var locationValue = document.getElementById("locationInput").value;
-        var websiteValue = document.getElementById("websiteInput").value;
-        var alldayValue = $('input[name=allday]').is(':checked');
-
-            // reformat time input and add it if allday is true
-            if(alldayValue) {
-              startTimeInput = "00:00";
-              endTimeInput = "23:59";
-            }
-
-
-            // get and get values of all mandatory fields
-            // if not given mark them as incomplete
-            var titleValue = getAndCheckTitleInput();
-            var organizerValue = checkAndGetOrganizerInput();
-            var startTimeValue = getAndCheckStartInput();
-            var endTimeValue = getAndCheckEndInput();
-            var statusValue = getStatusInput();
-
-            var inputIsValid = true;
-
-            // check if all data was entered correctly
-            if(!titleValue || !organizerInput || !startTimeInput || !endTimeInput || !statusInput) {
-              inputIsValid = false;
-
-              submitButton.popup();
-              submitButton.popup('show');
-            }
-
-
-            // if all the necessary input is give correctly a request can be made
-            if(inputIsValid) {
-
-              // add time formatting
-              startTimeInput = "2019-06-24T" + startTimeInput;
-              endTimeInput = "2019-06-24T" + endTimeInput;
-
-
-              // make request with data
-              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTimeValue + '", "end": "' + endTimeValue + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '" }';
-              console.log(dummyRequest);
-            }
-
-            // $.post("https://dhbw.cheekbyte.de/calendar/500/events", JSON.parse(requestData), function(status) {
-            //   console.log(status);
-            // });
-
-    });
-
-    
-    
-    
-    
-    
-    
-    
-    
     
     displayMonthView(currentMonth, currentYear);
     displayYearMonthDate(currentDate, currentMonth, currentYear);
 
-    loadEventData().then(function(message){
-
-        displayEventsMonthView();
-        console.log(message);
-        console.log(eventData);
-    })
-    .catch(function(message){
-        console.log(message);
-    })
+    loadData();
 
     createNewEntryButton.click(function(){
-        console.log("toggling sidebar");
         $('.ui.sidebar').sidebar('toggle');
     });
 
-    nextButton.click(function(){
-        if(inMonthView){
-            nextMonth();
-            displayYearMonthDate(currentDate, currentMonth, currentYear);
-            displayMonthView(currentMonth, currentYear);
-            displayEventsMonthView();
-        }
-        else{
-            nextWeek();
-            displayYearMonthDate(currentDate, currentMonth, currentYear);
-            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
-            displayEventsWeekView();
-        }
-    });
 
-    previousButton.click(function(){
-        if(inMonthView){
-            previousMonth();
-            displayYearMonthDate(currentDate, currentMonth, currentYear);
-            displayMonthView(currentMonth, currentYear);
-            displayEventsMonthView();
-        }
-        else{
-            previousWeek();
-            displayYearMonthDate(currentDate, currentMonth, currentYear);
-            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
-            displayEventsWeekView();
-        }
-    });
-
-    weekViewButton.click(function(){
-        if(inMonthView){
-            inMonthView = false;
-            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
-            displayEventsWeekView();
-            weekViewButton.text("Month View");
-        }
-        else{
-            inMonthView = true;
-            displayMonthView(currentMonth, currentYear)
-            displayEventsMonthView();
-            weekViewButton.text("Week View");
-
-        }
-    })
+    calendarBasicLayoutListeners();
+    postFormListeners();
+    postCategory();
 })
 
+// *************************************************************************************************
+
+// Loading Data
+
+function loadData(){
+    
+    resetData();
+    loadCategoryData().then(function(message){
+        loadEventData().then(function(message){
+
+            console.log(allCategories);
+            displayCategories();
+            displayEventsMonthView();
+            
+        })
+        
+    }).catch(function(message){
+        console.log("Error loading data");
+    })
+
+}
+
 function loadEventData(){
+    console.log("loading events");
 
     return new Promise(function(resolve, reject){
 
@@ -299,6 +110,32 @@ function loadEventData(){
     });
 
 }
+
+function loadCategoryData(){
+    console.log("loading categories");
+    return new Promise(function(resolve, reject){
+
+        $.get("https://dhbw.cheekbyte.de/calendar/500/categories", function(data){
+        allCategories = data;
+        resolve("success");
+        reject("loading error");
+        })
+    });
+}
+
+function resetData(){
+    eventData = [];
+    allCategories = [];
+}
+
+// *************************************************************************************************
+
+
+
+
+
+// *************************************************************************************************
+// Basic Calendar Layout
 
 
 function displayYearMonthDate(date, month, year){
@@ -356,6 +193,8 @@ function displayMonthView(month, year){
 
 }
 
+
+
 function displayEventsMonthView(){
 
     var eventStartString;
@@ -387,21 +226,14 @@ function displayEventsMonthView(){
 
         // if(eventYear === currentYear && eventMonth === currentMonth){
 
-            console.log(event.title);
             eventDateID = calculateIDMonthView(eventYear, eventMonth, eventDate);
             eventDIV = generateEventDIV(event);
-            console.log("eventDateID: " + eventDateID);
             var eventDateCell = $("#" + eventDateID);
+
+            // cell cleared first because event might already be displayed
+            eventDateCell.empty();
             eventDateCell.append(eventDIV);
         // }
-
-        // console.log("*******************************");
-        // console.log(event.title);
-        // console.log("event year" + eventYear)
-        // console.log("event month" + eventMonth)
-        // console.log("event day" + eventDate)
-        // console.log(event.start);
-        // console.log(event.end);
 
     })
 
@@ -441,10 +273,9 @@ function displayEventsWeekView(){
             
             eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
             eventDIV = generateEventDIV(event);
-            console.log("eventDateID: " + eventDateID);
             
             var eventDateCell = $("#" + eventDateID);
-            console.log(eventDateCell);
+            eventDateCell.empty();
             eventDateCell.append(eventDIV);        
 
 
@@ -551,23 +382,6 @@ function previousWeek(){
         currentDate -= 7;
     }
     
-}
-
-
-function calculateDaysInMonth(month, year){
-
-    return 32 - new Date(year, month, 32).getDate();
-}
-
-function calculateDaysPrevMonth(month, year){
-
-    if(currentMonth === 0){
-        return calculateDaysInMonth(11, year-1);
-    }
-    else{
-        return calculateDaysInMonth(month-1, year);
-    }
-
 }
 
 function displayWeekView(minutes, hour, day, date, month, year){
@@ -729,16 +543,379 @@ function hideDateSpans(){
     saturdayDateSpan.text("");
 }
 
+function calendarBasicLayoutListeners(){
+    nextButton.click(function(){
+        if(inMonthView){
+            nextMonth();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayMonthView(currentMonth, currentYear);
+            displayEventsMonthView();
+        }
+        else{
+            nextWeek();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            displayEventsWeekView();
+        }
+    });
+
+    previousButton.click(function(){
+        if(inMonthView){
+            previousMonth();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayMonthView(currentMonth, currentYear);
+            displayEventsMonthView();
+        }
+        else{
+            previousWeek();
+            displayYearMonthDate(currentDate, currentMonth, currentYear);
+            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            displayEventsWeekView();
+        }
+    });
+
+    weekViewButton.click(function(){
+        if(inMonthView){
+            inMonthView = false;
+            displayWeekView(currentMinutes, currentHour, currentDay, currentDate, currentMonth, currentYear);
+            displayEventsWeekView();
+            weekViewButton.text("Month View");
+        }
+        else{
+            inMonthView = true;
+            displayMonthView(currentMonth, currentYear)
+            displayEventsMonthView();
+            weekViewButton.text("Week View");
+
+        }
+    })
+}
+
 function generateEventDIV(event){
-    var eventID = event.id;
-    var eventTitle = event.title;
-    var eventStatus = event.status;
 
     var htmlString = '<div id="' + event.id + '"';
-    htmlString += '<h3>' + eventTitle + '</h3>';
+    htmlString += '<h3>' + event.title + '</h3>';
 
     htmlString += '</div>';
 
     return htmlString;
 
 }
+
+// *************************************************************************************************
+
+
+
+// *************************************************************************************************
+// utlility functions
+
+function calculateDaysInMonth(month, year){
+
+    return 32 - new Date(year, month, 32).getDate();
+}
+
+function calculateDaysPrevMonth(month, year){
+
+    if(currentMonth === 0){
+        return calculateDaysInMonth(11, year-1);
+    }
+    else{
+        return calculateDaysInMonth(month-1, year);
+    }
+
+}
+
+function arrayRemove(arr, value) {
+
+    return arr.filter(function(ele){
+        return ele != value;
+    });
+ 
+ }
+
+ // *************************************************************************************************
+
+
+// *************************************************************************************************
+// Categories: Create and Delete and Display
+
+function displayCategories(){
+
+    var categoryItem;
+    allCategoriesDisplay.empty();
+
+    allCategories.forEach(function(category){
+
+        categoryItem = generateCategoryItem(category);
+        allCategoriesDisplay.append(categoryItem);
+
+        // click listener for selecting and deselecting a category
+        $("#" + category.id).bind("click", function(){
+            if(selectedCategories.includes(category)){
+                console.log(category.name + " is in selected Categories");
+                selectedCategories = arrayRemove(selectedCategories, category);
+                $("#" + category.id).removeClass("selectCategory");
+            }
+            else{
+                selectedCategories.push(category);
+                $("#" + category.id).addClass("selectCategory");
+            }
+        })
+        // click listener for deleting a category
+
+        $("#deleteSpan" + category.id).bind("click", function(){
+            deleteCategory(category.id);
+        })
+    })
+
+}
+
+
+function postCategory(){
+
+    categoryPostButton.on("click", function(){
+        
+        var postData = {"name" : categoryNameInput.val()}
+        var formData = JSON.stringify(postData);
+        $.ajax({
+            type: "POST",
+            url: "https://dhbw.cheekbyte.de/calendar/500/categories",
+            data: formData,
+            success: function(){
+                console.log("Successfully posted category");
+            },
+            dataType: "json",
+            contentType : "application/json"
+          }).done(function(response){
+              allCategories = [];
+              console.log(response);
+              loadData();
+
+          })
+
+
+    })
+}
+
+function deleteCategory(categoryID){
+
+    $.ajax({
+        type: "DELETE",
+        url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID,
+        success: function(){
+            console.log("Successfully deleted category");
+        },
+      }).done(function(response){
+          console.log(response);
+          loadData();
+      })
+
+}
+
+// only used when calendar is loaded the first time
+function selectAllCategories(){
+    selectedCategories = [];
+    allCategories.forEach(function(category){
+        selectedCategories.push(category);
+    })
+}
+
+
+// HTML creators
+
+function generateCategoryItem(category){
+
+    var nameParagraph = '<p>' + category.name + '</p>';
+    var deleteSpan = '<span id="deleteSpan' + category.id + '">X</span>';
+
+    var htmlString = '<li id="' + category.id + '"';
+    htmlString += nameParagraph;
+    htmlString += deleteSpan;
+
+    htmlString += '</li>';
+    console.log(htmlString);
+
+    return htmlString;
+}
+
+// *************************************************************************************************
+
+
+
+
+// *************************************************************************************************
+// Entries: Create, Edit and Delete
+
+
+function postFormListeners(){
+
+    titleInput.change(function() {
+        getAndCheckTitleInput();
+    
+      })
+    
+      organizerInput.change(function() {
+      checkAndGetOrganizerInput();
+    })
+    
+    startTimeInput.change(function() {
+        getAndCheckStartInput();
+      })
+    
+      endTimeInput.change(function() {
+        getAndCheckEndInput();
+      })
+    
+      statusInput.change(function() {
+        getStatusInput();
+      })
+    
+        
+        
+          // remove popup after mouse leaves submit button
+      document.getElementById('submitButton').onmouseout = function(event) {
+        submitButton.popup('destroy');
+    }
+        
+        
+    submitButton.click(function() {
+    
+    var locationValue = document.getElementById("locationInput").value;
+    var websiteValue = document.getElementById("websiteInput").value;
+    var alldayValue = $('input[name=allday]').is(':checked');
+    
+        // reformat time input and add it if allday is true
+        if(alldayValue) {
+            startTimeInput = "00:00";
+            endTimeInput = "23:59";
+        }
+    
+    
+        // get and get values of all mandatory fields
+        // if not given mark them as incomplete
+        var titleValue = getAndCheckTitleInput();
+        var organizerValue = checkAndGetOrganizerInput();
+        var startTimeValue = getAndCheckStartInput();
+        var endTimeValue = getAndCheckEndInput();
+        var statusValue = getStatusInput();
+    
+        var inputIsValid = true;
+    
+        // check if all data was entered correctly
+        if(!titleValue || !organizerInput || !startTimeInput || !endTimeInput || !statusInput) {
+            inputIsValid = false;
+    
+            submitButton.popup();
+            submitButton.popup('show');
+        }
+    
+    
+        // if all the necessary input is give correctly a request can be made
+        if(inputIsValid) {
+    
+            // add time formatting
+            startTimeInput = "2019-06-24T" + startTimeInput;
+            endTimeInput = "2019-06-24T" + endTimeInput;
+    
+    
+            // make request with data
+            var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTimeValue + '", "end": "' + endTimeValue + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '" }';
+            console.log(dummyRequest);
+        }
+    
+        // $.post("https://dhbw.cheekbyte.de/calendar/500/events", JSON.parse(requestData), function(status) {
+        //   console.log(status);
+        // });
+    
+    });
+}
+
+
+
+// check current input data
+function getAndCheckTitleInput() {
+
+    var titleInputValue = document.getElementById("titleInput").value;
+    if(titleInputValue == "") {
+        document.getElementById('titleInput').classList.add("red");
+        return false;
+    } else {
+        document.getElementById('titleInput').classList.remove("red");
+        return titleInputValue;
+    }
+    }
+
+function checkAndGetOrganizerInput() {
+
+var organizerInputValue = document.getElementById("organizerInput").value;
+if (organizerInputValue == "") {
+
+    inputIsValid = false;
+    document.getElementById('organizerInput').classList.add("red");
+    return false;
+} else {
+
+    document.getElementById('organizerInput').classList.remove("red");
+    return organizerInputValue;
+    }
+
+}
+
+function getAndCheckStartInput() {
+    var startTimeInputValue = document.getElementById("startTInput").value;
+    var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+  
+    if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
+  
+      document.getElementById('startTInput').classList.add("red");
+      inputIsValid = false;
+    } else {
+  
+      document.getElementById('startTInput').classList.remove("red");
+      return startTimeInputValue;
+    }
+  }
+    
+  
+  
+  function getAndCheckEndInput() {
+    var endTimeInputValue = document.getElementById("endTInput").value;
+    var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+  
+    if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
+  
+      document.getElementById('endTInput').classList.add("red");
+      return false;
+    } else {
+      document.getElementById('endTInput').classList.remove("red");
+      return endTimeInputValue;
+    }
+  }
+    
+  
+  
+  function getStatusInput() {
+    var statusInputValue = $('#statusDropdown').dropdown('get value');
+  
+    if (statusInputValue == "") {
+  
+      document.getElementById('statusDropdown').classList.add("red");
+    } else {
+  
+      document.getElementById('statusDropdown').classList.remove("red");
+    }
+    return statusInputValue;
+  }
+    
+  
+  
+      
+        // function checkInputLength(input, length) {
+    //
+    //   if(input.length < length + 1) {
+    //     console.log("String has valid length");
+    //   } else {
+    //     console.log("Invalid length");
+    //   }
+    //
+    // }

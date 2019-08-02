@@ -107,16 +107,35 @@
                     </div>
                     <div class="pusher">
                       <!-- Site content !-->
+
+                      <div id="categoryContainer">
+                        <div id="categories">
+                          <h3>Categories</h3>
+                            <ul id="allCategoriesDisplay">
+                            </ul>
+                        </div>
+                        <div id="categoryPostContainer">
+                          <form class="ui form segment" id="categoryPostForm" method="POST">
+                                <div class="field">
+                                    <label>Add new Category</label>
+                                    <input placeholder="Add new category" name="name" type="text" maxlength="30" id="categoryNameInput">
+                                </div>
+                                    <div class="ui primary submit button" id="categoryPostButton">Add Category</div>
+                          </form>
+                        </div>
+
+                      </div>
+
+                      <hr>
+
                       <div id="Navigation">
-                            <h1>This will be the navigation</h1>
                             <div id="buttons">
                 
                                 <button class="ui left labeled icon button" id="previousButton">
                                         <i class="left arrow icon"></i>
                                         Previous
                                 </button>
-                                <h1 class="ui header">Year: <span id="yearDisplay"></span>  -  Month: <span id="monthDisplay">
-
+                                <h1 id="mainDisplay" class="ui header">Year: <span id="yearDisplay"></span>  -  Month: <span id="monthDisplay">
                                 </span>  -  Date: <span id="dateDisplay"></span></h1>
                                 <button class="ui right labeled icon button" id="nextButton">
                                         <i class="right arrow icon"></i>

@@ -1,3 +1,66 @@
+
+/* categoryDisplay */
+#categoryContainer {
+  display: flex;
+  justify-content: stretch;
+}
+
+#categories {
+  width: 70%;
+}
+
+#categoryPostContainer {
+  width: 30%;
+}
+
+#allCategoriesDisplay {
+  list-style: none;
+}
+
+.selectCategory {
+  background-color: darkslategray;
+  color: aliceblue;
+}
+
+li {
+  display: flex;
+}
+
+p:nth-child(1) {
+  width: 50%;
+}
+
+
+/* navigation bar */
+#buttons {
+  display: flex;
+  /* justify-content: space-between; */
+}
+
+.ui.button {
+  position: relative;
+  margin-top: 22px;
+}
+
+#mainDisplay {
+  width: 45%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.button {
+  height: 70%;
+}
+
+#weekView {
+  margin-left: auto;
+  margin-right: 2px;
+}
+
+
+
 .red {
   border-color: red !important;
 }
+
+
