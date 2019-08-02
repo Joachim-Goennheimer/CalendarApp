@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html>
-    <header>
+<html lang="en">
+    <head>
         <meta charset="UTF-8">
         <title>Calendar App</title>
-
-
+        <meta name="author" content="MatrikelNr: 3406999">
+        <meta name="description" content="Calendar App for Web-Engineering Course">
+        <meta name="keywords" content="1.0, HoffentlichGuteNote, WürdenUnsWirklichFreuen, BitteBitte, WirHabenUnsEchtAngestrengt">
+        
         <script
 			  src="https://code.jquery.com/jquery-3.4.1.min.js"
 			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -13,11 +15,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
         <link rel="stylesheet" type="text/css" href="styles.css">
 
-    </header>
+    </head>
 
     <body>
-
-            <body>
                     <div class="ui sidebar inverted vertical menu">
                         <!-- <form action="" method="POST">
                             <label for="shortDescription">Short Description</label>
@@ -65,7 +65,7 @@
                                 </div>
 
                                 <div class="field">
-                                  <lable>Status</label>
+                                  <label>Status</label>
                                   <div class="ui selection dropdown" id="statusDropdown">
                                       <input type="hidden" id="statusInput" name="gender">
                                         <i class="dropdown icon"></i>
@@ -173,7 +173,7 @@
                                     <i class="left arrow icon"></i>
                                     Previous
                             </button>
-                            <h1 class="mainDisplay ui header"><span id="monthDisplay"></h1>
+                            <h1 class="mainDisplay ui header"><span id="monthDisplay"></span></h1>
                             <button class="ui right labeled icon button" id="nextMonthOrWeekButton">
                                     <i class="right arrow icon"></i>
                                     Next
@@ -247,13 +247,7 @@
                             </div>
                           </div>
                         </div>
-                  </body>
 
-        
-
-
-        
-            
             <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
             <script src="logic.js"></script>
     </body>

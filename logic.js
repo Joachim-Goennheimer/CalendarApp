@@ -884,7 +884,7 @@ function generateCategoryItem(category){
     // htmlString += nameParagraph;
     // htmlString += '</li>';
 
-    var htmlString = '<div ' + style + ' class="item" id="' + category.id + '">';
+    var htmlString = '<div ' + style + ' class="item ui button" id="' + category.id + '">';
     htmlString += '<div class="content">'
     + '<div class="flexCategory header">' + deleteSpan + nameParagraph + '</div>';
     // htmlString += deleteSpan;
