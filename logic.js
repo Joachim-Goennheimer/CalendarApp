@@ -26,18 +26,33 @@ weekViewButton = $("#weekView");
 
 
 
+imageInput = $("#imageInput");
 submitButton = $("#submitButton");
 startTimeInput = $("#startTInput");
 endTimeInput = $("#endTInput");
+startDate = $('#startDate');
+endDate = $('#endDate');
 titleInput = $("#titleInput");
 organizerInput = $('#organizerInput');
 statusInput = $('#statusDropdown');
 categoryInput = $('#categoryInput');
 $('#statusDropdown').dropdown();
-$('#categoryInput').popup();
+$('#categoryDropdown').dropdown();
 
+// $('.ui.form').form({
+//   inline: true,
+//   fields: {
+//     dateInput: {
+//       identifier: 'dateInput',
+//       rules: [{
+//         type: "regExp[/^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d$/]",
+//         prompt: "Please select a valid mm/dd/yyyy date"
+//       }]
+//     }
+//   }
+// });
 
-
+var allCategories = [{"id": 149, "name": "family"}, {"id": 150, "name": "church"}, {"id": 151, "name": "sport"}, {"id": 152, "name": "university"}, {"id": 153, "name": "music"}];
 months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
@@ -48,9 +63,10 @@ var eventData;
 $(document).ready(function(){
 
     // form stuff Leon
-    
-    
-    
+
+
+
+
     // check current input data
 function getAndCheckTitleInput() {
 
@@ -94,7 +110,7 @@ function getAndCheckStartInput() {
   if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
 
     document.getElementById('startTInput').classList.add("red");
-    inputIsValid = false;
+    return false;
   } else {
 
     document.getElementById('startTInput').classList.remove("red");
@@ -104,7 +120,6 @@ function getAndCheckStartInput() {
   startTimeInput.change(function() {
    getAndCheckStartInput();
  })
-
 
 function getAndCheckEndInput() {
   var endTimeInputValue = document.getElementById("endTInput").value;
@@ -123,7 +138,6 @@ function getAndCheckEndInput() {
   getAndCheckEndInput();
 })
 
-
 function getStatusInput() {
   var statusInputValue = $('#statusDropdown').dropdown('get value');
 
@@ -140,29 +154,116 @@ function getStatusInput() {
     getStatusInput();
   })
 
+function checkDateValidity() {
+  var startDateValue = document.getElementById('startDate').value;
+  var endDateValue = document.getElementById('endDate').value;
 
-    
-      // function checkInputLength(input, length) {
-  //
-  //   if(input.length < length + 1) {
-  //     console.log("String has valid length");
-  //   } else {
-  //     console.log("Invalid length");
-  //   }
+  if(startDateValue > endDateValue) {
+    document.getElementById('startDate').classList.add("red");
+    document.getElementById('endDate').classList.add("red");
+
+
+  } else {
+    document.getElementById('startDate').classList.remove("red");
+    document.getElementById('endDate').classList.remove("red");
+
+
+  }
+
+}
+  startDate.change(function() {
+    checkDateValidity();
+  })
+  endDate.change(function() {
+    checkDateValidity();
+  })
+
+function checkTimeValidity() {
+  startTimeValue = getAndCheckStartInput();
+  endTimeValue = getAndCheckEndInput();
+
+  if(!startTimeValue || !endTimeValue) {
+    return false;
+  }
+
+  startInt1 = parseInt(startTimeValue.toString().substring(0,2), 10);
+  startInt2 = parseInt(startTimeValue.toString().substring(3,6), 10);
+
+  endInt1 = parseInt(endTimeValue.toString().substring(0,2), 10);
+  endInt2 = parseInt(endTimeValue.toString().substring(3,6), 10);
+  if(startInt1 > endInt1) {
+  } else if(startInt1 == endInt1 && startInt2 > endInt2) {
+  } else {
+    return true;
+  }
+  document.getElementById('startTInput').classList.add("red");
+  document.getElementById('endTInput').classList.add("red");
+  return false;
+
+
+}
+
+
+
+
+function checkImageAndGetB64() {
+
+  var imagePath = document.getElementById('imageInput');
+
+
+// // working
+  // function toDataURL(imagePath, callback) {
+  //   var xhr = new XMLHttpRequest();
+  //   xhr.onload = function() {
+  //     var reader = new FileReader();
+  //     reader.onloadend = function() {
+  //       callback(reader.result, xhr.response.size);
+  //     }
+  //     reader.readAsDataURL(xhr.response);
+  //   };
+  //   xhr.open('GET', imagePath);
+  //   xhr.responseType = 'blob';
+  //   xhr.withCredentials = true;
+  //   xhr.send();
   //
   // }
-    
-    
+  //
+  // toDataURL(imagePath, function(dataUrl, size) {
+  //
+  //   // localStorage.setItem('size', size);
+  //   // localStorage.setItem('imageB64', dataUrl);
+  //
+  // })
+
+
+  // var size = localStorage.getItem('size');
+  // var imageB64 = localStorage.getItem('imageB64');
+  // localStorage.clear();
+  //
+  // if(size > 500000 || size == 0) {
+  //   document.getElementById('imageInput').classList.add("red");
+  //   return false;
+  // } else {
+  //   document.getElementById('imageInput').classList.remove("red");
+  //   return imageB64;
+  // }
+
+
+
+
+
+}
+
+
       // remove popup after mouse leaves submit button
   document.getElementById('submitButton').onmouseout = function(event) {
     submitButton.popup('destroy');
 }
-    
-    
-    
-    
-    
+
+
         submitButton.click(function() {
+
+
 
         var locationValue = document.getElementById("locationInput").value;
         var websiteValue = document.getElementById("websiteInput").value;
@@ -183,23 +284,55 @@ function getStatusInput() {
             var endTimeValue = getAndCheckEndInput();
             var statusValue = getStatusInput();
 
+
             var inputIsValid = true;
 
             // check if all data was entered correctly
-            if(!titleValue || !organizerInput || !startTimeInput || !endTimeInput || !statusInput) {
+            if(!titleValue || !organizerValue || !startTimeValue || !endTimeValue || !statusValue) {
               inputIsValid = false;
 
               submitButton.popup();
               submitButton.popup('show');
+
+
             }
+
+            // check if times are valid
+            checkTimeValidity();
+
+
+            // check if dates are valid
+            checkDateValidity();
+
+
+            // check if image is valid
+            checkImageAndGetB64();
+
+
+
+            // else {
+            //   console.log("Start time: " + startTimeValue);
+            //   console.log("End time: " + endTimeValue);
+            //
+            //   if(startTimeValue.subtring(0,1) <= endTimeValue.substring(3,4)) {
+            //     alert(1);
+            //   } else if(startTimeValue.subtring(0,1) <= endTimeValue.substring(3,4)) {
+            //     alert(2);
+            //   } else if(startTimeValue == endTimeValue) {
+            //     alert(3);
+            //   } else {
+            //     alert(4);
+            //     inputIsValid = false;
+            //   }
+            //   submitButton.popup();
+            //   submitButton.popup('show');
+            //
+            // }
 
 
             // if all the necessary input is give correctly a request can be made
             if(inputIsValid) {
 
-              // add time formatting
-              startTimeInput = "2019-06-24T" + startTimeInput;
-              endTimeInput = "2019-06-24T" + endTimeInput;
 
 
               // make request with data
@@ -213,15 +346,7 @@ function getStatusInput() {
 
     });
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     displayMonthView(currentMonth, currentYear);
     displayYearMonthDate(currentDate, currentMonth, currentYear);
 
@@ -285,7 +410,7 @@ function getStatusInput() {
 
         }
     })
-})
+});
 
 function loadEventData(){
 
@@ -438,14 +563,14 @@ function displayEventsWeekView(){
         eventDate = parseInt(eventDate);
         eventHour = parseInt(eventHour);
         eventMinutes = parseInt(eventMinutes);
-            
+
             eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
             eventDIV = generateEventDIV(event);
             console.log("eventDateID: " + eventDateID);
-            
+
             var eventDateCell = $("#" + eventDateID);
             console.log(eventDateCell);
-            eventDateCell.append(eventDIV);        
+            eventDateCell.append(eventDIV);
 
 
     })
@@ -482,11 +607,11 @@ function nextMonth(){
         currentDate = 7 - (daysLeftInMonth % 7);
         // console.log("currentDate: " + currentDate);
     }
-    
+
 }
 
 function nextWeek(){
-    
+
     var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
     // console.log("*******************************************");
     // console.log("daysInMonth: " + daysInMonth);
@@ -513,7 +638,7 @@ function nextWeek(){
     else{
         currentDate += 7;
     }
-    
+
 }
 
 function previousMonth(){
@@ -530,7 +655,7 @@ function previousMonth(){
     // console.log("currenMonth: " + currentMonth);
     currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
     // console.log("currentDate: " + currentDate);
-    
+
 }
 
 function previousWeek(){
@@ -544,13 +669,13 @@ function previousWeek(){
         else{
             currentMonth--;
         }
-        
+
         currentDate = daysInPrevMonth - (7 - currentDate);
     }
     else{
         currentDate -= 7;
     }
-    
+
 }
 
 
@@ -573,11 +698,11 @@ function calculateDaysPrevMonth(month, year){
 function displayWeekView(minutes, hour, day, date, month, year){
 
     inMonthView = false;
-    
+
     timeTracker = new Date();
     timeTracker.setHours(00);
     timeTracker.setMinutes(00);
-    
+
     // console.log("hours: " + hours);
     // console.log("minutes: " + minutes);
 
@@ -615,7 +740,7 @@ function displayWeekView(minutes, hour, day, date, month, year){
         else{
             timeTracker.setMinutes(30);
         }
-        
+
         for(j = 0; j < 7; j++){
 
             var columnID = setIDWeekView(j, day, date, hoursString, minutesString);
@@ -716,7 +841,7 @@ function calculateIDWeekView(year, month, date, hour, minutes){
     }
 
     return "" + year + "-" + month + "-" + date + "T" + hour + minutes;
-    
+
 }
 
 function hideDateSpans(){

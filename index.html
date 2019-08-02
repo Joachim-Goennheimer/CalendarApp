@@ -22,7 +22,7 @@
                         <!-- <form action="" method="POST">
                             <label for="shortDescription">Short Description</label>
                             <input type="text" id="shortDescription" name="shortDescription">
-                            
+
                             <label for="details">Details</label>
                             <textarea id="eventDetails" name="details"></textarea>
 
@@ -36,17 +36,39 @@
 
                        <form class="ui form segment" method="POST">
 
+
+
                                 <div class="two fields">
 
-                                  <div class="field">
-                                    <label id="uniqueID">Event Start</label>
-                                    <input placeholder="--:--" type="time" name="startTime" id="startTInput" value="">
+                                  <div class="six wide field">
+                                    <label>Event Start</label>
+                                    <input placeholder="--:--" type="text" name="startTime" id="startTInput" value="">
                                 </div>
-                                  <div class="field">
+
+                                <div class="twelve wide field">
+                                  <label>Event start date</label>
+                                  <input name="dateInput" value="" type="date" id="startDate" placeholder="DD/MM/YYYY">
+                                 <!-- <input placeholder="Date" class="textbox-n" type="text" value="" onclick="(this.type='date')" onblur="(this.type='text')" id="startDate"> -->
+                                 </div>
+                                </div>
+
+
+
+                                <div class="two fields">
+
+                                  <div class="six wide field">
                                     <label>Event End</label>
-                                    <input placeholder="--:--" type="time" name="endTime" id="endTInput" value="">
+                                    <input placeholder="--:--" type="text" name="endTime" id="endTInput" value="">
                                   </div>
+
+                                  <div class="twelve wide field">
+                                    <label>Event end date</label>
+                                   <input name="dateInput" value="" type="date" id="endDate" placeholder="DD/MM/YYYY">
+                                   </div>
                                 </div>
+
+
+
                                 <div class="field">
                                   <label>Title</label>
                                   <input placeholder="Title of the event" name="title" type="text" maxlength="50" id="titleInput" value="">
@@ -85,9 +107,24 @@
                                 </div>
 
                                 <div class="field">
+                                  <lable>Categories</label>
+                                  <div class="ui selection multiple dropdown" id="categoryDropdown">
+                                      <input type="hidden" id="categoryInput">
+                                        <i class="dropdown icon"></i>
+                                        <div class="default text">Categorys of the event</div>
+                                        <div class="menu">
+                                          <div class="item" data-value="Free">Free</div>
+                                          <div class="item" data-value="Busy">Busy</div>
+                                          <div class="item" data-value="Tentative">Tentative</div>
+
+                                      </div>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="field">
                                         <label>Category</label>
                                         <input placeholder="Event category" name="Category" type="text" maxlength="100" id="categoryInput" value="" data-content="Categories" data-variation="mini">
-                                </div>
+                                </div> -->
 
 
 
@@ -102,7 +139,8 @@
                                   </div>
                                 </div>
                               </form>
-			    
+
+
 
                     </div>
                     <div class="pusher">
@@ -110,7 +148,7 @@
                       <div id="Navigation">
                             <h1>This will be the navigation</h1>
                             <div id="buttons">
-                
+
                                 <button class="ui left labeled icon button" id="previousButton">
                                         <i class="left arrow icon"></i>
                                         Previous
@@ -126,9 +164,9 @@
                                 <button class="ui button" id="weekView">Week View</button>
                             </div>
                         </div>
-                
+
                         <div id="calendar">
-                
+
                             <table class="ui celled table">
                                 <thead>
                                     <tr>
@@ -143,19 +181,19 @@
                                     </tr>
                                 </thead>
                                 <tbody id="calendarBody">
-                
+
                                 </tbody>
                             </table>
                         </div>
-                      
+
                     </div>
                   </body>
 
-        
 
 
-        
-            
+
+
+
             <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
             <script src="logic.js"></script>
     </body>
