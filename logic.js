@@ -82,6 +82,7 @@ $(document).ready(function(){
 
     createNewEntryButton.click(function(){
         $('.ui.sidebar').sidebar('toggle');
+        refreshFormInput();
     });
 
 
@@ -1113,7 +1114,9 @@ function deleteEvent(eventID){
             checkDateValidity();
 
             // check if image is valid
-            checkImageAndGetB64();
+            // checkImageAndGetB64();
+
+
 
 
 
@@ -1148,6 +1151,26 @@ function deleteEvent(eventID){
 
   }
 
+
+function refreshFormInput() {
+
+  $('#statusDropdown').dropdown('clear');
+  $('#categoryDropdown').dropdown('clear');
+  $('#alldayField').checkbox('set unchecked');
+
+  document.getElementById('titleInput').value = "";
+  document.getElementById('locationInput').value = "";
+  document.getElementById('organizerInput').value = "";
+  document.getElementById('websiteInput').value = "";
+  document.getElementById('imageInput').value = "";
+  document.getElementById('startDate').value = "";
+  document.getElementById('endDate').value = "";
+  document.getElementById('startTInput').value = "";
+  document.getElementById('endTInput').value = "";
+
+
+
+}
 
 // check current input data
 function getAndCheckTitleInput() {
