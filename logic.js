@@ -34,7 +34,7 @@ var weekViewButton = $("#weekView");
 
 
 // input Form listeners
-var allDayInput = $("#allDayInput");
+var alldayInput = $("#alldayInput");
 var submitButton = $("#submitButton");
 var startTimeInput = $("#startTInput");
 var endTimeInput = $("#endTInput");
@@ -42,6 +42,8 @@ var titleInput = $("#titleInput");
 var organizerInput = $('#organizerInput');
 var statusInput = $('#statusDropdown');
 var categoryInput = $('#categoryInput');
+var locationInput = $('#locationInput');
+var websiteInput = $('#websiteInput');
 var imageInput = $("#imageInput");
 var startDate = $('#startDate');
 var endDate = $('#endDate');
@@ -68,6 +70,8 @@ var hideCategories = [];
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
 var inMonthView = true;
+var editMode = false;
+var editID;
 
 var eventData;
 
@@ -102,7 +106,12 @@ function loadData(){
         loadEventData().then(function(message){
 
             displayCategories();
-            displayEventsMonthView();
+            if(inMonthView){
+                displayEventsMonthView();
+            }
+            else{
+                displayEventsWeekView();
+            }
         })
 
 
@@ -218,18 +227,30 @@ function displayMonthView(month, year){
     addClickListenersMonthView(columnIDs, year, month);
 }
 
-function addClickListenersMonthView(columnIDs, year, month){
+function addClickListenersMonthView(columnIDs){
 
 
     columnIDs.forEach(function(columnID){
 
         $("#createNew" + columnID).on("click", function(){
+            editMode = false;
+            editID = "";
 
             var inputString = columnID;
             var regEx1 = /-(\d)-/;
             var result = inputString.replace(regEx1, "-0$1-");
             var regEx2 = /-(\d)$/;
             result = result.replace(regEx2, "-0$1");
+
+            // have to do months +1 because calendar internally counts from 0 to 11.
+            // not very nice but in interest of time a quick fix that works.
+            var month = parseInt(result.substring(5,7));
+            month ++;
+            if(month <10){
+                month = "0" + month;
+            }
+
+            result = result.substring(0, 5) + month + result.substring(7);
 
             $('.ui.sidebar').sidebar('toggle');
             // console.log();
@@ -292,7 +313,7 @@ function displayEventsMonthView(){
         eventDate = eventStartString.slice(8, 10);
 
         eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth);
+        eventMonth = parseInt(eventMonth) -1;
         eventDate = parseInt(eventDate);
 
         // if(eventYear === currentYear && eventMonth === currentMonth){
@@ -320,7 +341,7 @@ function displayEventsMonthView(){
 
             })
             $("#editEvent" + event.id).on("click", function(){
-                alert("edit event");
+                editEvent(event);
             })
 
         // }
@@ -380,7 +401,7 @@ function displayEventsWeekView(){
 
 
         eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth);
+        eventMonth = parseInt(eventMonth) -1;
         eventDate = parseInt(eventDate);
         eventHour = parseInt(eventHour);
         eventMinutes = parseInt(eventMinutes);
@@ -409,7 +430,7 @@ function displayEventsWeekView(){
 
             })
             $("#editEvent" + event.id).on("click", function(){
-                alert("edit event");
+                editEvent(event);
             })
 
     })
@@ -617,6 +638,16 @@ function addClickListenersWeekView(columnIDs){
             var result = inputString.replace(regEx1, "-0$1-");
             var regEx2 = /-(\d)$/;
             result = result.replace(regEx2, "-0$1");
+
+            // have to do months +1 because calendar internally counts from 0 to 11.
+            // not very nice but in interest of time a quick fix that works.
+            var month = parseInt(result.substring(5,7));
+            month ++;
+            if(month <10){
+                month = "0" + month;
+            }
+
+            result = result.substring(0, 5) + month + result.substring(7);
 
             $('.ui.sidebar').sidebar('toggle');
             console.log(columnID);
@@ -1046,6 +1077,31 @@ function generateCategoryItem(category){
 // *************************************************************************************************
 // Entries: Create, Edit and Delete
 
+
+function editEvent(event){
+
+    editMode = true;
+    editID = event.id;
+
+    $('.ui.sidebar').sidebar('toggle');
+    // console.log();
+    startDate.val(event.start.substring(0, 10));
+    endDate.val(event.end.substring(0, 10));
+    startTimeInput.val(event.start.substring(11))
+    endTimeInput.val(event.end.substring(11))
+    titleInput.val(event.title);
+    organizerInput.val(event.organizer);
+    locationInput.val(event.location);
+    websiteInput.val(event.webpage);
+    statusInput.val(event.status);
+    if(event.allday){
+        alldayInput.prop("checked", true);
+    }
+    else{
+        alldayInput.prop("checked", false);
+    }
+
+}
 function deleteEvent(eventID){
 
     $.ajax({
@@ -1270,11 +1326,29 @@ function deleteEvent(eventID){
             // var requestData = JSON.parse(dummyRequest);
             var requestData = dummyRequest;
             // console.log(requestData);
-            $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
-              console.log(status);
-            });
 
+            if(!editMode){
+                $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
+                    console.log(status);
+                    loadData();
+                  });
+            }
+            else{
+                $.ajax({
+                    url: 'https://dhbw.cheekbyte.de/calendar/500/events/' + editID,
+                    type: 'PUT',
+                    data: requestData,
+                    dataType: "json",
+                    contentType: 'application/json',
+                    success: function(result) {
+                        console.log("Edit event: " + editID);
+                        editID = "";
+                        loadData();
+                    }
+                });
+            }
           }
+          $(".ui.sidebar").sidebar("toggle");
 
     })
 
