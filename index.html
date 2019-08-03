@@ -6,7 +6,7 @@
         <meta name="author" content="MatrikelNr: 3406999">
         <meta name="description" content="Calendar App for Web-Engineering Course">
         <meta name="keywords" content="1.0, HoffentlichGuteNote, WürdenUnsWirklichFreuen, BitteBitte, WirHabenUnsEchtAngestrengt">
-        
+
         <script
 			  src="https://code.jquery.com/jquery-3.4.1.min.js"
 			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -41,13 +41,13 @@
 
                                 <div class="two fields">
 
-                                  <div class="six wide field">
-                                    <label>Event Start</label>
+                                  <div class="six wide field required" id="startTInputField" >
+                                    <label>Start time</label>
                                     <input placeholder="--:--" type="text" name="startTime" id="startTInput" value="">
 
                                 </div>
 
-                                <div class="twelve wide field">
+                                <div class="ten wide field">
                                   <label>Event start date</label>
                                   <input name="dateInput" value="" type="date" id="startDate" placeholder="DD/MM/YYYY">
                                  <!-- <input placeholder="Date" class="textbox-n" type="text" value="" onclick="(this.type='date')" onblur="(this.type='text')" id="startDate"> -->
@@ -58,14 +58,14 @@
 
                                 <div class="two fields">
 
-                                  <div class="six wide field">
-                                    <label>Event End</label>
+                                  <div class="six wide field required" id="endTInputField">
+                                    <label>End time</label>
 
                                     <input placeholder="--:--" type="text" name="endTime" id="endTInput" value="">
 
                                   </div>
 
-                                  <div class="twelve wide field">
+                                  <div class="ten wide field">
                                     <label>Event end date</label>
                                    <input name="dateInput" value="" type="date" id="endDate" placeholder="DD/MM/YYYY">
                                    </div>
@@ -73,7 +73,7 @@
 
 
 
-                                <div class="field">
+                                <div class="field required">
                                   <label>Title</label>
                                   <input placeholder="Title of the event" name="title" type="text" maxlength="50" id="titleInput" value="">
                                 </div>
@@ -81,7 +81,7 @@
                                         <label>Location</label>
                                         <input placeholder="Location of the event" name="location" type="text" maxlength="50" id="locationInput" value="">
                                 </div>
-                                <div class="field">
+                                <div class="field required">
                                         <label>Organizer</label>
                                         <input placeholder="Organizer of the event" name="organizer" type="text" maxlength="50" id="organizerInput" value="">
                                 </div>
@@ -91,14 +91,12 @@
                                 </div>
 
                                 <div class="field">
-
                                   <lable>Status</label>
-
                                   <div class="ui selection dropdown" id="statusDropdown">
-                                      <input type="hidden" id="statusInput" name="gender">
+                                      <input type="hidden" id="statusInput">
                                         <i class="dropdown icon"></i>
                                         <div class="default text">Status of the event</div>
-                                        <div class="menu">
+                                        <div class="menu" id="statusMenu">
                                           <div class="item" data-value="Free">Free</div>
                                           <div class="item" data-value="Busy">Busy</div>
                                           <div class="item" data-value="Tentative">Tentative</div>
@@ -119,22 +117,11 @@
                                       <input type="hidden" id="categoryInput">
                                         <i class="dropdown icon"></i>
                                         <div class="default text">Categorys of the event</div>
-                                        <div class="menu">
-                                          <div class="item" data-value="Free">Free</div>
-                                          <div class="item" data-value="Busy">Busy</div>
-                                          <div class="item" data-value="Tentative">Tentative</div>
+                                        <div class="menu" id="categoryMenu">
 
                                       </div>
                                     </div>
                                 </div>
-
-                                <!-- <div class="field">
-                                        <label>Category</label>
-                                        <input placeholder="Event category" name="Category" type="text" maxlength="100" id="categoryInput" value="" data-content="Categories" data-variation="mini">
-                                </div> -->
-
-
-
 
                                 <div class=" two fields">
 
@@ -147,7 +134,7 @@
                                   </div>
                                 </div>
                               </form>
-			    
+
 
 
 
@@ -216,7 +203,7 @@
                                 Next
                         </button>
                         </div>
-                        
+
                           <div id="monthNavigation">
                             <button class="ui left labeled icon button" id="previousMonthOrWeekButton">
                                     <i class="left arrow icon"></i>
