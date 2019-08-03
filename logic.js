@@ -34,6 +34,7 @@ var weekViewButton = $("#weekView");
 
 
 // input Form listeners
+var alldayInput = $("#alldayInput");
 var submitButton = $("#submitButton");
 var startTimeInput = $("#startTInput");
 var endTimeInput = $("#endTInput");
@@ -41,13 +42,13 @@ var titleInput = $("#titleInput");
 var organizerInput = $('#organizerInput');
 var statusInput = $('#statusDropdown');
 var categoryInput = $('#categoryInput');
+var locationInput = $('#locationInput');
+var websiteInput = $('#websiteInput');
 var imageInput = $("#imageInput");
 var startDate = $('#startDate');
 var endDate = $('#endDate');
-var alldayInput = $('#alldayInput');
 $('#statusDropdown').dropdown();
 $('#categoryDropdown').dropdown();
-$('#categoryDropdown').dropdown('clear');
 
 
 // category Form listeners
@@ -68,6 +69,8 @@ var hideCategories = [];
 // boolean that tracks whether program is in month or in week view.
 // Necessary for next, previous buttons to work properly
 var inMonthView = true;
+var editMode = false;
+var editID;
 
 var eventData;
 
@@ -82,7 +85,9 @@ $(document).ready(function(){
 
     createNewEntryButton.click(function(){
         $('.ui.sidebar').sidebar('toggle');
+
         refreshFormInput();
+
     });
 
 
@@ -103,7 +108,12 @@ function loadData(){
         loadEventData().then(function(message){
 
             displayCategories();
-            displayEventsMonthView();
+            if(inMonthView){
+                displayEventsMonthView();
+            }
+            else{
+                displayEventsWeekView();
+            }
         })
 
 
@@ -167,10 +177,11 @@ function displayMonthView(month, year){
     hideDateSpans();
 
     calendarBody.empty();
-    tableContent = "";
-    daysInMonth = calculateDaysInMonth(month, year);
+    var tableContent = "";
+    var daysInMonth = calculateDaysInMonth(month, year);
     var currentDateID;
     let startDay = (new Date(year, month)).getDay();
+    var columnIDs = [];
 
     dateCounter = 1;
     for(i = 0; i < 6; i++){
@@ -191,7 +202,8 @@ function displayMonthView(month, year){
                 var columnID = calculateIDMonthView(year, month, dateCounter);
                 // console.log("columnID: " + columnID);
                 column = "<td id='" + columnID + "' class='dayCellMonthView'>";
-                column = column + "<h1>" + dateCounter + "</h1>";
+                column = column + "<h1 class='createNewEventsArea' id='createNew" + columnID + "'>" + dateCounter + "</h1>";
+                columnIDs.push(columnID);
                 dateCounter++;
             }
             else{
@@ -214,6 +226,41 @@ function displayMonthView(month, year){
     currentDateID = calculateIDMonthView(currentYear, currentMonth, currentDate);
 
     $("#" + currentDateID).addClass("currentDateStyle");
+    addClickListenersMonthView(columnIDs, year, month);
+}
+
+function addClickListenersMonthView(columnIDs){
+
+
+    columnIDs.forEach(function(columnID){
+
+        $("#createNew" + columnID).on("click", function(){
+            editMode = false;
+            editID = "";
+
+            var inputString = columnID;
+            var regEx1 = /-(\d)-/;
+            var result = inputString.replace(regEx1, "-0$1-");
+            var regEx2 = /-(\d)$/;
+            result = result.replace(regEx2, "-0$1");
+
+            // have to do months +1 because calendar internally counts from 0 to 11.
+            // not very nice but in interest of time a quick fix that works.
+            var month = parseInt(result.substring(5,7));
+            month ++;
+            if(month <10){
+                month = "0" + month;
+            }
+
+            result = result.substring(0, 5) + month + result.substring(7);
+
+            $('.ui.sidebar').sidebar('toggle');
+            // console.log();
+            startDate.val(result);
+            endDate.val(result);
+
+        })
+    })
 }
 
 function displayEventsMonthView(){
@@ -230,23 +277,23 @@ function displayEventsMonthView(){
     var hideEvent;
 
 
-    console.log("hideCategories: " + hideCategories)
+    // console.log("hideCategories: " + hideCategories)
 
     eventData.forEach(function(event){
 
         hideEvent = true;
         // check whether all of the events categories are in the hideCategoryArray
 
-        console.log("Event: " + event.title + " has categories: ");
+        // console.log("Event: " + event.title + " has categories: ");
 
         if(event.categories.length > 0){
             event.categories.forEach(function(category){
 
-                console.log(category.id);
-                console.log("**********************");
+                // console.log(category.id);
+                // console.log("**********************");
 
                 if(!hideCategories.includes(category.id)){
-                    console.log("hideEvent set to false");
+                    // console.log("hideEvent set to false");
                     hideEvent = false;
                 }
             })
@@ -268,7 +315,7 @@ function displayEventsMonthView(){
         eventDate = eventStartString.slice(8, 10);
 
         eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth);
+        eventMonth = parseInt(eventMonth) -1;
         eventDate = parseInt(eventDate);
 
         // if(eventYear === currentYear && eventMonth === currentMonth){
@@ -294,6 +341,9 @@ function displayEventsMonthView(){
 
                 }).modal("show");
 
+            })
+            $("#editEvent" + event.id).on("click", function(){
+                editEvent(event);
             })
 
         // }
@@ -353,7 +403,7 @@ function displayEventsWeekView(){
 
 
         eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth);
+        eventMonth = parseInt(eventMonth) -1;
         eventDate = parseInt(eventDate);
         eventHour = parseInt(eventHour);
         eventMinutes = parseInt(eventMinutes);
@@ -381,8 +431,9 @@ function displayEventsWeekView(){
                 }).modal("show");
 
             })
-
-
+            $("#editEvent" + event.id).on("click", function(){
+                editEvent(event);
+            })
 
     })
 
@@ -510,7 +561,8 @@ function displayWeekView(minutes, hour, day, date, month, year){
     timeHeader.show();
     calendarBody.empty();
 
-    tableContent = "";
+    var tableContent = "";
+    var columnIDs = [];
 
     displayDateSpans(day, date);
 
@@ -547,9 +599,11 @@ function displayWeekView(minutes, hour, day, date, month, year){
             var columnID = setIDWeekView(j, day, date, hoursString, minutesString);
             // console.log("dateID: " + columnID);
             var column = "<td id='" + columnID + "'>";
-
-
+            column += "<h1 class='createNewEventsArea' id='createNewEventsArea" + columnID + "'></h1>"
             column = column + "</td>";
+
+            columnIDs.push(columnID);
+
             row = row + column;
 
         }
@@ -559,6 +613,51 @@ function displayWeekView(minutes, hour, day, date, month, year){
     }
 
     calendarBody.append(tableContent);
+    addClickListenersWeekView(columnIDs);
+
+}
+
+function addClickListenersWeekView(columnIDs){
+
+    var date;
+    var time;
+    var splitIndex;
+    columnIDs.forEach(function(columnID){
+
+
+
+        $("#createNewEventsArea" + columnID).on("click", function(){
+
+            splitIndex = columnID.indexOf("T");
+            date = columnID.substring(0, splitIndex);
+            time = columnID.substring(splitIndex+1);
+            time = time.substring(0, 2) + ":" + time.substring(2, 4);
+            console.log("date: " + date);
+            console.log("time: " + time);
+
+            var inputString = date;
+            var regEx1 = /-(\d)-/;
+            var result = inputString.replace(regEx1, "-0$1-");
+            var regEx2 = /-(\d)$/;
+            result = result.replace(regEx2, "-0$1");
+
+            // have to do months +1 because calendar internally counts from 0 to 11.
+            // not very nice but in interest of time a quick fix that works.
+            var month = parseInt(result.substring(5,7));
+            month ++;
+            if(month <10){
+                month = "0" + month;
+            }
+
+            result = result.substring(0, 5) + month + result.substring(7);
+
+            $('.ui.sidebar').sidebar('toggle');
+            console.log(columnID);
+            startDate.val(result);
+            endDate.val(result);
+            startTimeInput.val(time);
+        })
+    })
 
 }
 
@@ -728,7 +827,7 @@ function generateEventDIV(event, hideEvent){
         htmlString = '<div id="' + event.id + '">';
         // htmlString += '<h3>' + eventDate + '</h3>';
         htmlString += deleteSpan;
-        htmlString += '<p>' + event.title + '</p>';
+        htmlString += '<p id="editEvent' + event.id + '">' + event.title + '</p>';
 
         htmlString += '</div>';
     }
@@ -824,8 +923,6 @@ function displayCategories(){
 
 }
 
-
-
 function postCategory(){
 
     categoryPostButton.on("click", function(){
@@ -854,22 +951,89 @@ function postCategory(){
 
 function deleteCategory(categoryID){
 
-    $.ajax({
-        type: "DELETE",
-        url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID,
-        success: function(){
-            console.log("Successfully deleted category");
-        },
-      }).done(function(response){
-          console.log(response);
-          deleteCategoryFromEvents();
-          loadData();
-      })
+    Promise.all(deleteCategoryFromEvents(categoryID)).then(function(){
+        console.log("promises resolved");
+        $.ajax({
+            type: "DELETE",
+            url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID,
+            success: function(){
+                console.log("Successfully deleted category");
+            },
+          }).done(function(response){
+              console.log(response);
+              loadData();
+          })
+      });
+
+
 
 }
 
-function deleteCategoryFromEvents(){
+function deleteCategoryFromEvents(categoryID){
+
+//     var promises = [];
+
+//     array.forEach(function(element) {
+//         promises.push(
+//             developer.getResources(element)
+//                 .then((data) = > {
+//                     name = data.items[0];
+//                     return developer.getResourceContent(element, file);
+//                 })
+//                 .then((response) = > {
+//                     fileContent = atob(response.content);
+//                     self.files.push({
+//                         fileName: fileName,
+//                         fileType: fileType,
+//                         content: fileContent
+//                     });
+//                 }).catch ((error) = > {
+//                     console.log('Error: ', error);
+//                 })
+//         );
+//     });
+
+// Promise.all(promises).then(() =>
+//     self.resultingFunction(self.files)
+// );
+
+
+var promises = [];
+
+    eventData.forEach(function(event){
+        if(eventContainsCategory(event, categoryID)){
+            promises.push(
+                $.ajax({
+                    type: "DELETE",
+                    url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID + "/" + event.id,
+                    success: function(){
+                        console.log("Successfully deleted category from event: " + event.title);
+                    },
+                })
+            );
+        }
+        else{
+            console.log("Category not contained in event: " + event.title);
+        }
+
+    })
+
+    return promises
     // to be implemented
+}
+
+function eventContainsCategory(event, categoryID){
+
+    var containsCategory = false;
+
+    event.categories.forEach(function(category){
+        if(category.id === categoryID){
+            containsCategory = true;
+            console.log(event.title + " contains category with id: " + categoryID);
+        }
+    })
+
+    return containsCategory;
 }
 
 // HTML creators
@@ -915,6 +1079,44 @@ function generateCategoryItem(category){
 // *************************************************************************************************
 // Entries: Create, Edit and Delete
 
+
+function editEvent(event){
+
+    editMode = true;
+    editID = event.id;
+
+    $('.ui.sidebar').sidebar('toggle');
+    // console.log();
+    startDate.val(event.start.substring(0, 10));
+    endDate.val(event.end.substring(0, 10));
+    startTimeInput.val(event.start.substring(11))
+    endTimeInput.val(event.end.substring(11))
+    titleInput.val(event.title);
+    organizerInput.val(event.organizer);
+    locationInput.val(event.location);
+    websiteInput.val(event.webpage);
+    statusInput.dropdown('set selected', event.status);
+
+      if(event.categories.length > 0) {
+        console.log("In if statement");
+
+        event.categories.forEach(function(category) {
+
+          $('#categoryDropdown').dropdown('set selected', category.id);
+        })
+      }
+
+
+
+
+    if(event.allday){
+        alldayInput.prop("checked", true);
+    }
+    else{
+        alldayInput.prop("checked", false);
+    }
+
+}
 function deleteEvent(eventID){
 
     $.ajax({
@@ -951,9 +1153,9 @@ function deleteEvent(eventID){
         getAndCheckEndInput();
       })
 
-      statusInput.change(function() {
-        getStatusInput();
-      })
+      // statusInput.change(function() {
+      //   getStatusInput();
+      // })
 
       startDate.change(function() {
         checkDateValidity();
@@ -964,6 +1166,7 @@ function deleteEvent(eventID){
       })
 
       alldayInput.change(function() {
+
 
         var alldayValue = $('input[name=allday]').is(':checked');
         if(alldayValue) {
@@ -1095,20 +1298,20 @@ function deleteEvent(eventID){
 
 
 
-            var inputIsValid = true;
+        var inputIsValid = true;
 
-            // check if all data was entered correctly
-            if(!titleValue || !organizerValue || !startTimeValue || !endTimeValue || !statusValue) {
-              inputIsValid = false;
+        // check if all data was entered correctly
+        if(!titleValue || !organizerValue || !startTimeValue || !endTimeValue || !statusValue) {
+            inputIsValid = false;
 
-              submitButton.popup();
-              submitButton.popup('show');
+            submitButton.popup();
+            submitButton.popup('show');
 
 
-            }
+        }
 
-            // check if times are valid
-            checkTimeValidity();
+        // check if times are valid
+        checkTimeValidity();
 
             // check if dates are valid
             checkDateValidity();
@@ -1121,8 +1324,8 @@ function deleteEvent(eventID){
 
 
 
-            // if all the necessary input is give correctly a request can be made
-            if(inputIsValid) {
+        // if all the necessary input is give correctly a request can be made
+        if(inputIsValid) {
 
               // if allday is true set times to ...
               if(alldayValue) {
@@ -1141,11 +1344,29 @@ function deleteEvent(eventID){
             // var requestData = JSON.parse(dummyRequest);
             var requestData = dummyRequest;
             // console.log(requestData);
-            $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
-              console.log(status);
-            });
 
+            if(!editMode){
+                $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
+                    console.log(status);
+                    loadData();
+                  });
+            }
+            else{
+                $.ajax({
+                    url: 'https://dhbw.cheekbyte.de/calendar/500/events/' + editID,
+                    type: 'PUT',
+                    data: requestData,
+                    dataType: "json",
+                    contentType: 'application/json',
+                    success: function(result) {
+                        console.log("Edit event: " + editID);
+                        editID = "";
+                        loadData();
+                    }
+                });
+            }
           }
+          $(".ui.sidebar").sidebar("toggle");
 
     })
 
@@ -1289,8 +1510,6 @@ function checkTimeValidity() {
 
 
 }
-
-
 
 
 function checkImageAndGetB64() {

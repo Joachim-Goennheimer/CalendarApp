@@ -5,20 +5,17 @@ body {
   margin-right: 10px;
 }
 
-table {
-  /* table-layout: fixed; */
-  /* height: 100%; */
-}
-
 td > div {
   display: flex;
 }
 
-
 .dayCellMonthView {
   width: 75px;
   height: 75px;
-  
+}
+
+.createNewEventsArea {
+  background-color: whitesmoke;
 }
 /* categoryDisplay */
 
