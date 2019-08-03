@@ -41,24 +41,14 @@ var titleInput = $("#titleInput");
 var organizerInput = $('#organizerInput');
 var statusInput = $('#statusDropdown');
 var categoryInput = $('#categoryInput');
-imageInput = $("#imageInput");
-startDate = $('#startDate');
-endDate = $('#endDate');
+var imageInput = $("#imageInput");
+var startDate = $('#startDate');
+var endDate = $('#endDate');
+var alldayInput = $('#alldayInput');
 $('#statusDropdown').dropdown();
 $('#categoryDropdown').dropdown();
+$('#categoryDropdown').dropdown('clear');
 
-// $('.ui.form').form({
-//   inline: true,
-//   fields: {
-//     dateInput: {
-//       identifier: 'dateInput',
-//       rules: [{
-//         type: "regExp[/^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)\\d\\d$/]",
-//         prompt: "Please select a valid mm/dd/yyyy date"
-//       }]
-//     }
-//   }
-// });
 
 // category Form listeners
 var categoryPostForm = $("#categoryPostForm");
@@ -72,8 +62,6 @@ var confirmDeleteEventButton = $("#confirmDeleteEventButton");
 
 
 var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"];
-// var allCategories = [{"id": 1, "name": "family"}, {"id": 2, "name": "church"}, {"id": 3, "name": "sport"}, {"id": 4, "name": "university"},
-// {"id": 5, "name": "music"}];
 var allCategories = [];
 var hideCategories = [];
 
@@ -91,9 +79,11 @@ $(document).ready(function(){
 
     loadData();
 
+
     createNewEntryButton.click(function(){
         $('.ui.sidebar').sidebar('toggle');
     });
+
 
 
     calendarBasicLayoutListeners();
@@ -106,16 +96,16 @@ $(document).ready(function(){
 // Loading Data
 
 function loadData(){
-    
+
     resetData();
     loadCategoryData().then(function(message){
         loadEventData().then(function(message){
 
             displayCategories();
             displayEventsMonthView();
-            
         })
-        
+
+
     }).catch(function(message){
         console.log("Error loading data");
     })
@@ -263,7 +253,7 @@ function displayEventsMonthView(){
         else{
             hideEvent = false;
         }
-        
+
         eventStartString = event.start;
 
         eventYear = eventStartString.slice(0, 4);
@@ -300,14 +290,14 @@ function displayEventsMonthView(){
                         $("#" + event.id).remove();
                         deleteEvent(event.id);
                     }
-    
+
                 }).modal("show");
-                
+
             })
 
         // }
 
-        
+
     })
 
 }
@@ -370,7 +360,7 @@ function displayEventsWeekView(){
             eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
 
             eventDIV = generateEventDIV(event, hideEvent);
-            
+
             var eventDateCell = $("#" + eventDateID);
 
             var formerEventDiv = $("#" + event.id);
@@ -386,9 +376,9 @@ function displayEventsWeekView(){
                         $("#" + event.id).remove();
                         deleteEvent(event.id);
                     }
-    
+
                 }).modal("show");
-                
+
             })
 
 
@@ -741,7 +731,7 @@ function generateEventDIV(event, hideEvent){
 
         htmlString += '</div>';
     }
-    
+
 
     return htmlString;
 
@@ -775,7 +765,7 @@ function arrayRemove(arr, value) {
     return arr.filter(function(ele){
         return ele != value;
     });
- 
+
  }
 
  // *************************************************************************************************
@@ -838,7 +828,7 @@ function displayCategories(){
 function postCategory(){
 
     categoryPostButton.on("click", function(){
-        
+
         var postData = {"name" : categoryNameInput.val()}
         var formData = JSON.stringify(postData);
         $.ajax({
@@ -886,7 +876,7 @@ function deleteCategoryFromEvents(){
 function generateCategoryItem(category){
 
 
-    
+
 
     // <div class="item">
     // <img class="ui avatar image" src="/images/avatar/small/tom.jpg">
@@ -941,48 +931,136 @@ function deleteEvent(eventID){
 
     // form stuff Leon
 
-function postFormListeners(){ 
-  
-    titleInput.change(function() {
-    getAndCheckTitleInput();
+    function postFormListeners(){
 
-  })
-  
-    organizerInput.change(function() {
-  checkAndGetOrganizerInput();
-})
-  
-   startTimeInput.change(function() {
-   getAndCheckStartInput();
- })
-  
-  endTimeInput.change(function() {
-  getAndCheckEndInput();
-})
-  
+      titleInput.change(function() {
+        getAndCheckTitleInput();
+
+      })
+
+      organizerInput.change(function() {
+        checkAndGetOrganizerInput();
+      })
+
+      startTimeInput.change(function() {
+        getAndCheckStartInput();
+      })
+
+      endTimeInput.change(function() {
+        getAndCheckEndInput();
+      })
+
       statusInput.change(function() {
-    getStatusInput();
-  })
+        getStatusInput();
+      })
 
-    // remove popup after mouse leaves submit button
-  document.getElementById('submitButton').onmouseout = function(event) {
-    submitButton.popup('destroy');
-}
-  
-          submitButton.click(function() {
+      startDate.change(function() {
+        checkDateValidity();
+      })
 
+      endDate.change(function() {
+        checkDateValidity();
+      })
+
+      alldayInput.change(function() {
+
+        var alldayValue = $('input[name=allday]').is(':checked');
+        if(alldayValue) {
+          document.getElementById('startTInputField').classList.add("disabled");
+          document.getElementById('endTInputField').classList.add("disabled");
+
+          document.getElementById('startTInput').value = "00:00";
+          document.getElementById('endTInput').value = "23:59";
+
+          document.getElementById('startTInput').classList.remove("red");
+          document.getElementById('endTInput').classList.remove("red");
+
+
+
+        } else {
+          document.getElementById('startTInputField').classList.remove("disabled");
+          document.getElementById('endTInputField').classList.remove("disabled");
+
+        }
+
+      })
+
+      $('#categoryDropdown').mouseenter(function() {
+
+        var categoryInput = $('#categoryDropdown').dropdown('get value');
+        categoryInput = categoryInput.split(',');
+
+
+        if(categoryInput.length > 0) {
+
+          var contained = false;
+          var currentInput;
+
+          categoryInput.forEach(function(input) {
+
+            allCategories.forEach(function(category) {
+              if(input == category.id) {
+                contained = true;
+              }
+              currentInput = input;
+
+            })
+
+            if(contained == false) {
+              $('#categoryDropdown').dropdown('remove selected', currentInput);
+            }
+
+            })
+
+
+        }
+
+
+
+        var categoryEntry = [];
+        var i = 0;
+
+        allCategories.forEach(function(category) {
+
+          if(i == 0){
+            categoryEntry[i] = "{\"value\":\"" + category.id + "\",\"text\":\"" + category.name + "\",\"name\":\"" + category.name + "\"}";
+          } else {
+            categoryEntry[i] = ",{\"value\":\"" + category.id + "\",\"text\":\"" + category.name + "\",\"name\":\"" + category.name + "\"}";
+          }
+          i++;
+
+        })
+
+        var categoryBuildString = "{ \"values\": [";
+
+        categoryEntry.forEach(function(categoryentry) {
+          categoryBuildString = categoryBuildString + categoryentry;
+        })
+
+        categoryBuildString = categoryBuildString + "]}";
+
+        // console.log(categoryBuildString);
+
+        var categoryData = JSON.parse(categoryBuildString);
+        $('#categoryDropdown').dropdown('setup menu', categoryData);
+        // $('#categoryDropdown').dropdown('refresh');
+        // console.log($('#categoryDropdown').dropdown('get value'));
+    })
+
+      // remove popup after mouse leaves submit button
+      document.getElementById('submitButton').onmouseout = function(event) {
+        submitButton.popup('destroy');
+      }
+
+
+      submitButton.click(function() {
 
 
         var locationValue = document.getElementById("locationInput").value;
         var websiteValue = document.getElementById("websiteInput").value;
         var alldayValue = $('input[name=allday]').is(':checked');
-
-            // reformat time input and add it if allday is true
-            if(alldayValue) {
-              startTimeInput = "00:00";
-              endTimeInput = "23:59";
-            }
-
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
 
             // get and get values of all mandatory fields
             // if not given mark them as incomplete
@@ -991,6 +1069,29 @@ function postFormListeners(){
             var startTimeValue = getAndCheckStartInput();
             var endTimeValue = getAndCheckEndInput();
             var statusValue = getStatusInput();
+            var categoryInput = $('#categoryDropdown').dropdown('get value');
+            categoryInput = categoryInput.split(',');
+            var categoryString;
+
+            if(categoryInput[0] == "") {
+              categoryString = "";
+
+            } else {
+
+              categoryString = ',"categories":[';
+              var counter = 0;
+              categoryInput.forEach(function(input) {
+                if(counter == 0) {
+                  categoryString = categoryString + '{"id":' + input + '}';
+                } else {
+                  categoryString = categoryString + ',{"id":' + input + '}';
+                }
+                counter ++;
+              })
+              categoryString = categoryString + ']';
+
+            }
+
 
 
             var inputIsValid = true;
@@ -1008,57 +1109,47 @@ function postFormListeners(){
             // check if times are valid
             checkTimeValidity();
 
-
             // check if dates are valid
             checkDateValidity();
-
 
             // check if image is valid
             checkImageAndGetB64();
 
 
 
-            // else {
-            //   console.log("Start time: " + startTimeValue);
-            //   console.log("End time: " + endTimeValue);
-            //
-            //   if(startTimeValue.subtring(0,1) <= endTimeValue.substring(3,4)) {
-            //     alert(1);
-            //   } else if(startTimeValue.subtring(0,1) <= endTimeValue.substring(3,4)) {
-            //     alert(2);
-            //   } else if(startTimeValue == endTimeValue) {
-            //     alert(3);
-            //   } else {
-            //     alert(4);
-            //     inputIsValid = false;
-            //   }
-            //   submitButton.popup();
-            //   submitButton.popup('show');
-            //
-            // }
-
 
             // if all the necessary input is give correctly a request can be made
             if(inputIsValid) {
 
+              // if allday is true set times to ...
+              if(alldayValue) {
+                startTimeValue = "00:00";
+                endTimeValue = "23:59";
+              }
 
-
+              var startTime = startDate + "T" + startTimeValue;
+              var endTime = endDate + "T" + endTimeValue;
+              console.log(categoryString);
               // make request with data
-              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTimeValue + '", "end": "' + endTimeValue + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '" }';
+              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTime + '", "end": "' + endTime + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '"' + categoryString + '}';
               console.log(dummyRequest);
-            }
-
-            // $.post("https://dhbw.cheekbyte.de/calendar/500/events", JSON.parse(requestData), function(status) {
-            //   console.log(status);
-            // });
-
-    });
-  
-  
-}
 
 
-    // check current input data
+            // var requestData = JSON.parse(dummyRequest);
+            var requestData = dummyRequest;
+            // console.log(requestData);
+            $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
+              console.log(status);
+            });
+
+          }
+
+    })
+
+  }
+
+
+// check current input data
 function getAndCheckTitleInput() {
 
   var titleInputValue = document.getElementById("titleInput").value;
@@ -1071,23 +1162,25 @@ function getAndCheckTitleInput() {
   }
 }
 
-
 function checkAndGetOrganizerInput() {
 
   var organizerInputValue = document.getElementById("organizerInput").value;
-  if (organizerInputValue == "") {
+  var regex = new RegExp(/^\S+@\S+\.\S+$/);
 
-    inputIsValid = false;
+  if (organizerInputValue == "" || !regex.test(organizerInputValue)) {
     document.getElementById('organizerInput').classList.add("red");
     return false;
   } else {
-
     document.getElementById('organizerInput').classList.remove("red");
     return organizerInputValue;
   }
 
-}
 
+
+
+
+
+}
 
 function getAndCheckStartInput() {
   var startTimeInputValue = document.getElementById("startTInput").value;
@@ -1103,7 +1196,6 @@ function getAndCheckStartInput() {
     return startTimeInputValue;
   }
 }
- 
 
 function getAndCheckEndInput() {
   var endTimeInputValue = document.getElementById("endTInput").value;
@@ -1118,8 +1210,6 @@ function getAndCheckEndInput() {
     return endTimeInputValue;
   }
 }
-  
-
 
 function getStatusInput() {
   var statusInputValue = $('#statusDropdown').dropdown('get value');
@@ -1133,9 +1223,6 @@ function getStatusInput() {
   }
   return statusInputValue;
 }
-
-
-
 
 function checkDateValidity() {
   var startDateValue = document.getElementById('startDate').value;
@@ -1154,12 +1241,6 @@ function checkDateValidity() {
   }
 
 }
-  startDate.change(function() {
-    checkDateValidity();
-  })
-  endDate.change(function() {
-    checkDateValidity();
-  })
 
 function checkTimeValidity() {
   startTimeValue = getAndCheckStartInput();
@@ -1232,7 +1313,3 @@ function checkImageAndGetB64() {
   // }
 
 }
-
-
-
-
