@@ -49,7 +49,6 @@ var startDate = $('#startDate');
 var endDate = $('#endDate');
 $('#statusDropdown').dropdown();
 $('#categoryDropdown').dropdown();
-$('#categoryDropdown').dropdown('clear');
 
 
 // category Form listeners
@@ -86,6 +85,8 @@ $(document).ready(function(){
 
     createNewEntryButton.click(function(){
         $('.ui.sidebar').sidebar('toggle');
+        $('#categoryDropdown').dropdown('clear');
+        $('#statusDropdown').dropdown('clear');
     });
 
 
@@ -622,7 +623,7 @@ function addClickListenersWeekView(columnIDs){
     var splitIndex;
     columnIDs.forEach(function(columnID){
 
-        
+
 
         $("#createNewEventsArea" + columnID).on("click", function(){
 
@@ -963,7 +964,7 @@ function deleteCategory(categoryID){
           })
       });
 
-    
+
 
 }
 
@@ -991,7 +992,7 @@ function deleteCategoryFromEvents(categoryID){
 //         );
 //     });
 
-// Promise.all(promises).then(() => 
+// Promise.all(promises).then(() =>
 //     self.resultingFunction(self.files)
 // );
 
@@ -1013,7 +1014,7 @@ var promises = [];
         else{
             console.log("Category not contained in event: " + event.title);
         }
-        
+
     })
 
     return promises
@@ -1093,7 +1094,20 @@ function editEvent(event){
     organizerInput.val(event.organizer);
     locationInput.val(event.location);
     websiteInput.val(event.webpage);
-    statusInput.val(event.status);
+    statusInput.dropdown('set selected', event.status);
+
+      if(event.categories.length > 0) {
+        console.log("In if statement");
+
+        event.categories.forEach(function(category) {
+
+          $('#categoryDropdown').dropdown('set selected', category.id);
+        })
+      }
+
+
+
+
     if(event.allday){
         alldayInput.prop("checked", true);
     }
@@ -1138,9 +1152,9 @@ function deleteEvent(eventID){
         getAndCheckEndInput();
       })
 
-      statusInput.change(function() {
-        getStatusInput();
-      })
+      // statusInput.change(function() {
+      //   getStatusInput();
+      // })
 
       startDate.change(function() {
         checkDateValidity();
@@ -1151,6 +1165,7 @@ function deleteEvent(eventID){
       })
 
       alldayInput.change(function() {
+
 
         var alldayValue = $('input[name=allday]').is(':checked');
         if(alldayValue) {
@@ -1472,8 +1487,6 @@ function checkTimeValidity() {
 
 
 }
-
-
 
 
 function checkImageAndGetB64() {
