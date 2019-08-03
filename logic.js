@@ -1274,6 +1274,64 @@ function checkImageAndGetB64() {
 
   var imagePath = document.getElementById('imageInput');
 
+  // var xhr = new XMLHttpRequest();
+  // xhr.withCredentials = true;
+  //
+  // xhr.addEventListener("readystatechange", function () {
+  //   if (this.readyState === 4) {
+  //     console.log(this.responseText);
+  //   }
+  // });
+  //
+  // xhr.open("GET", "https://image.cnbcfm.com/api/v1/image/105992231-1561667465295gettyimages-521697453.jpeg");
+  // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+  // xhr.setRequestHeader("Access-Control-Allow-Credentials", "*");
+  //
+  // xhr.send();
+
+
+
+
+
+
+//   $.ajax({
+//      url: "file:///Users/leonfeldmann/Desktop/test.jpeg",
+//      method: "GET",
+//      beforeSend: function (xhr) {
+//
+//     // xhr.setRequestHeader('Access-Control-Content-Type', '*');
+//     xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+//     xhr.setRequestHeader('Access-Control-Allow-Credentials', true);
+//     // xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
+//
+//   },
+//      xhrFields: {
+//         withCredentials: true
+//      }
+//   }).done(function( msg ) {
+//  console.log( "Data Saved: " + msg );
+// });
+
+var settings = {
+  "async": true,
+  "crossDomain": true,
+  "url": "https://image.cnbcfm.com/api/v1/image/105992231-1561667465295gettyimages-521697453.jpeg",
+  "method": "GET",
+  "headers": {
+    "User-Agent": "PostmanRuntime/7.15.0",
+    "Accept": "*/*",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Credentials": "true",
+    "Cache-Control": "no-cache",
+    "Postman-Token": "24f687cc-a522-44ad-81dc-3d809a84f9d7,2f89013f-acc7-4bdf-8121-1bbc806acdad",
+    "cache-control": "no-cache"
+  }
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+
 
 // // working
   // function toDataURL(imagePath, callback) {
