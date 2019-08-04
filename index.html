@@ -105,10 +105,17 @@
                                     </div>
                                 </div>
 
-                                <div class="field">
+
+                                <div class="field" id="imageInputField">
                                         <label>Image</label>
-                                        <input placeholder="Image of the event" name="image" type="text" maxlength="100" id="imageInput" value="">
+                                        <input name="image" type="file" maxlength="100" id="imageInput" value="">
                                 </div>
+
+                                <div class="ui checkbox" id="imageCheckboxField">
+                                      <input name="imageCheckbox" type="checkbox" id="imageCheckbox">
+                                      <label>Remove image</label>
+                                </div>
+
 
                                 <div class="field">
 
@@ -123,16 +130,14 @@
                                     </div>
                                 </div>
 
-                                <div class=" two fields">
-
                                   <div class="ui primary submit button"
-                                  data-content="Please fill out the marked field correctly" data-variation="mini" id="submitButton">Submit</div>
+                                  data-content="Please fill out the marked fields correctly" data-variation="mini" id="submitButton">Submit</div>
 
                                   <div class="ui checkbox" id="alldayField">
                                         <input name="allday" type="checkbox" id="alldayInput">
                                         <label>Allday</label>
                                   </div>
-                                </div>
+
                               </form>
 
 
