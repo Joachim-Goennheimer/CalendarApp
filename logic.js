@@ -34,6 +34,7 @@ var weekViewButton = $("#weekView");
 
 
 // input Form listeners
+var imageCheckbox = $("#imageCheckbox");
 var alldayInput = $("#alldayInput");
 var submitButton = $("#submitButton");
 var startTimeInput = $("#startTInput");
@@ -255,6 +256,7 @@ function addClickListenersMonthView(columnIDs){
             result = result.substring(0, 5) + month + result.substring(7);
 
             $('.ui.sidebar').sidebar('toggle');
+            refreshFormInput();
             // console.log();
             startDate.val(result);
             endDate.val(result);
@@ -652,6 +654,8 @@ function addClickListenersWeekView(columnIDs){
             result = result.substring(0, 5) + month + result.substring(7);
 
             $('.ui.sidebar').sidebar('toggle');
+            refreshFormInput();
+
             console.log(columnID);
             startDate.val(result);
             endDate.val(result);
@@ -1086,6 +1090,8 @@ function editEvent(event){
     editID = event.id;
 
     $('.ui.sidebar').sidebar('toggle');
+    refreshFormInput();
+
     // console.log();
     startDate.val(event.start.substring(0, 10));
     endDate.val(event.end.substring(0, 10));
@@ -1096,6 +1102,7 @@ function editEvent(event){
     locationInput.val(event.location);
     websiteInput.val(event.webpage);
     statusInput.dropdown('set selected', event.status);
+    
 
       if(event.categories.length > 0) {
         console.log("In if statement");
@@ -1189,35 +1196,61 @@ function deleteEvent(eventID){
 
       })
 
-      $('#categoryDropdown').mouseenter(function() {
+      imageInput.change(function() {
+        if(document.getElementById('imageInput').files.length > 0 && document.getElementById('imageInput').files[0].size < 500000) {
+          document.getElementById('imageInput').classList.remove("red");
+          console.log("Image is okay");
+        } else {
+          document.getElementById('imageInput').classList.add("red");
+          console.log("image is not fine");
+        }
 
-        var categoryInput = $('#categoryDropdown').dropdown('get value');
-        categoryInput = categoryInput.split(',');
+      })
 
+      imageCheckbox.change(function() {
+        var imageCheckboxValue = $('input[name=imageCheckbox]').is(':checked');
 
-        if(categoryInput.length > 0) {
+        if(imageCheckboxValue) {
+          document.getElementById('imageInputField').classList.add("disabled");
+          document.getElementById('imageInput').classList.remove("red");
+          document.getElementById('imageInput').value = "";
 
-          var contained = false;
-          var currentInput;
-
-          categoryInput.forEach(function(input) {
-
-            allCategories.forEach(function(category) {
-              if(input == category.id) {
-                contained = true;
-              }
-              currentInput = input;
-
-            })
-
-            if(contained == false) {
-              $('#categoryDropdown').dropdown('remove selected', currentInput);
-            }
-
-            })
-
+        } else {
+          document.getElementById('imageInputField').classList.remove("disabled");
 
         }
+
+      })
+
+      $('#categoryDropdown').mouseenter(function() {
+
+        // var categoryInput = $('#categoryDropdown').dropdown('get value');
+        // categoryInput = categoryInput.split(',');
+        //
+        //
+        // if(categoryInput.length > 0) {
+        //
+        //   var contained = false;
+        //   var currentInput;
+        //
+        //   categoryInput.forEach(function(input) {
+        //
+        //     allCategories.forEach(function(category) {
+        //       if(input == category.id) {
+        //         contained = true;
+        //       }
+        //       currentInput = input;
+        //
+        //     })
+        //
+        //     if(contained == false) {
+        //       $('#categoryDropdown').dropdown('remove selected', currentInput);
+        //     }
+        //
+        //     })
+        //
+        //
+        // }
 
 
 
@@ -1257,7 +1290,7 @@ function deleteEvent(eventID){
       }
 
 
-      submitButton.click(function() {
+      submitButton.click(async function() {
 
 
         var locationValue = document.getElementById("locationInput").value;
@@ -1265,6 +1298,8 @@ function deleteEvent(eventID){
         var alldayValue = $('input[name=allday]').is(':checked');
         var startDate = document.getElementById('startDate').value;
         var endDate = document.getElementById('endDate').value;
+        var imageCheckboxValue = $('input[name=imageCheckbox]').is(':checked');
+
 
             // get and get values of all mandatory fields
             // if not given mark them as incomplete
@@ -1298,6 +1333,7 @@ function deleteEvent(eventID){
 
 
 
+
         var inputIsValid = true;
 
         // check if all data was entered correctly
@@ -1317,15 +1353,22 @@ function deleteEvent(eventID){
             checkDateValidity();
 
             // check if image is valid
-            // checkImageAndGetB64();
+            var imageString = "";
+            if(document.getElementById('imageInput').files.length > 0 && document.getElementById('imageInput').files[0].size < 500000) {
+            var imageB64 = await convertImageToB64(document.getElementById('imageInput').files[0]);
+            console.log(imageB64);
+              if(imageB64 != null) {
+                imageString = ',"imagedata": "' + imageB64 + '"';
+              }
+            }
 
+              // if all the necessary input is give correctly a request can be made
+              if(inputIsValid) {
 
-
-
-
-
-        // if all the necessary input is give correctly a request can be made
-        if(inputIsValid) {
+                // change imageString value to remove image if (remove)checkbox is checked
+                if(imageCheckboxValue) {
+                  imageString = "REMOVE";
+                }
 
               // if allday is true set times to ...
               if(alldayValue) {
@@ -1335,9 +1378,9 @@ function deleteEvent(eventID){
 
               var startTime = startDate + "T" + startTimeValue;
               var endTime = endDate + "T" + endTimeValue;
-              console.log(categoryString);
+
               // make request with data
-              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTime + '", "end": "' + endTime + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '"' + categoryString + '}';
+              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTime + '", "end": "' + endTime + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '"' + imageString + categoryString + '}';
               console.log(dummyRequest);
 
 
@@ -1365,8 +1408,8 @@ function deleteEvent(eventID){
                     }
                 });
             }
+            $(".ui.sidebar").sidebar("toggle");
           }
-          $(".ui.sidebar").sidebar("toggle");
 
     })
 
@@ -1511,105 +1554,18 @@ function checkTimeValidity() {
 
 }
 
+function convertImageToB64(file) {
+  return new Promise(resolve => {
+    var reader = new FileReader();
+    reader.onabort = function() {
+      console.log("Aborting");
+      reject(null);
+    }
+    reader.onloadend = function() {
+      console.log("Success");
+        resolve(reader.result);
+    }
+    reader.readAsDataURL(file);
 
-function checkImageAndGetB64() {
-
-  var imagePath = document.getElementById('imageInput');
-
-  // var xhr = new XMLHttpRequest();
-  // xhr.withCredentials = true;
-  //
-  // xhr.addEventListener("readystatechange", function () {
-  //   if (this.readyState === 4) {
-  //     console.log(this.responseText);
-  //   }
-  // });
-  //
-  // xhr.open("GET", "https://image.cnbcfm.com/api/v1/image/105992231-1561667465295gettyimages-521697453.jpeg");
-  // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-  // xhr.setRequestHeader("Access-Control-Allow-Credentials", "*");
-  //
-  // xhr.send();
-
-
-
-
-
-
-//   $.ajax({
-//      url: "file:///Users/leonfeldmann/Desktop/test.jpeg",
-//      method: "GET",
-//      beforeSend: function (xhr) {
-//
-//     // xhr.setRequestHeader('Access-Control-Content-Type', '*');
-//     xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-//     xhr.setRequestHeader('Access-Control-Allow-Credentials', true);
-//     // xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
-//
-//   },
-//      xhrFields: {
-//         withCredentials: true
-//      }
-//   }).done(function( msg ) {
-//  console.log( "Data Saved: " + msg );
-// });
-
-var settings = {
-  "async": true,
-  "crossDomain": true,
-  "url": "https://image.cnbcfm.com/api/v1/image/105992231-1561667465295gettyimages-521697453.jpeg",
-  "method": "GET",
-  "headers": {
-    "User-Agent": "PostmanRuntime/7.15.0",
-    "Accept": "*/*",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Credentials": "true",
-    "Cache-Control": "no-cache",
-    "Postman-Token": "24f687cc-a522-44ad-81dc-3d809a84f9d7,2f89013f-acc7-4bdf-8121-1bbc806acdad",
-    "cache-control": "no-cache"
-  }
-}
-
-$.ajax(settings).done(function (response) {
-  console.log(response);
-});
-
-
-// // working
-  // function toDataURL(imagePath, callback) {
-  //   var xhr = new XMLHttpRequest();
-  //   xhr.onload = function() {
-  //     var reader = new FileReader();
-  //     reader.onloadend = function() {
-  //       callback(reader.result, xhr.response.size);
-  //     }
-  //     reader.readAsDataURL(xhr.response);
-  //   };
-  //   xhr.open('GET', imagePath);
-  //   xhr.responseType = 'blob';
-  //   xhr.withCredentials = true;
-  //   xhr.send();
-  //
-  // }
-  //
-  // toDataURL(imagePath, function(dataUrl, size) {
-  //
-  //   // localStorage.setItem('size', size);
-  //   // localStorage.setItem('imageB64', dataUrl);
-  //
-  // })
-
-
-  // var size = localStorage.getItem('size');
-  // var imageB64 = localStorage.getItem('imageB64');
-  // localStorage.clear();
-  //
-  // if(size > 500000 || size == 0) {
-  //   document.getElementById('imageInput').classList.add("red");
-  //   return false;
-  // } else {
-  //   document.getElementById('imageInput').classList.remove("red");
-  //   return imageB64;
-  // }
-
+  })
 }
