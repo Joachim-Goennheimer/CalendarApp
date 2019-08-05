@@ -5,6 +5,18 @@ body {
   margin-right: 10px;
 }
 
+.ui.table thead tr:first-child > th {
+  position: sticky !important;
+  top: 0;
+  z-index: 2;
+}
+
+.nightStyle {
+  background-color: navy;
+  color: white;
+  opacity: 0.2;
+}
+
 td > div {
   display: flex;
 }
@@ -19,11 +31,18 @@ td > div {
 }
 
 .currentDateStyle > h1 {
-  /* background-color: oldlace !important; */
   color: coral;
 }
 
 /* eventDisplay */
+
+#displaySelectedEventTitle {
+  color: black;
+}
+
+#displaySelectedEventImage {
+  color: black;
+}
 
 .displaySelectedEventCategorySpan {
   margin-right: 10px;
@@ -47,8 +66,6 @@ td > div {
 #categoryPostContainer {
   width: 30%;
 }
-
-
 
 #allCategoriesDisplay {
   list-style: none;
@@ -81,7 +98,6 @@ p:nth-child(1) {
 /* navigation bar */
 #yearNavigation {
   display: flex;
-  /* justify-content: space-between; */
 }
 
 #monthNavigation {
@@ -109,7 +125,18 @@ p:nth-child(1) {
   margin-right: 2px;
 }
 
+#listAllEvents {
+  margin-left: auto;
+  margin-right: 2px;
+}
 
+#listAllEventsModal {
+  width: 90%;
+}
+
+.three.wide.column {
+  padding: 0px !important;
+}
 
 .red {
   border-color: red !important;

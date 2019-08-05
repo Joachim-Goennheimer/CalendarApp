@@ -132,12 +132,7 @@
                                          <div class="ui item">
 
                                            <div class="field" id="imageInputField" data-content="Please select an image smaller than 500kb">
-                                             <!-- <label>Image</label> -->
-                                             <!-- <input name="image" type="file" id="imageInput" placeholder="test"> -->
                                              <input type="file" id="imageInput" multiple style='display: none;'/>
-                                             <!-- <div class="ui button" for="imageInput" data-variation="mini" >Upload image</div>
-                                           multiple style='display: none;'-->
-
                                              <label id="imageLabel" for="imageInput">select image</label>
                                            </div>
                                          </div>
@@ -155,8 +150,6 @@
                                          </div>
 
                                        </div>
-
-
 
                                       <div class="field">
                                         <div class="ui items ">
@@ -177,9 +170,6 @@
                                       </div>
                                     </div>
                                   </div>
-
-
-
 
                               </form>
 
@@ -221,7 +211,8 @@
                             <button class="ui right labeled icon button" id="nextYearButton">
                                 <i class="right arrow icon"></i>
                                 Next
-                        </button>
+                            </button>
+                            <button class="ui button" id="listAllEvents">List all Events</button>
                         </div>
 
                           <div id="monthNavigation">
@@ -265,8 +256,6 @@
 
                     <div class="ui basic modal" id="displaySelectedEventModal">
                         <div class="ui icon header">
-                          <!-- <i class="archive icon"></i> -->
-
                           <div class="ui placeholder segment">
                               <div class="ui two column very relaxed stackable grid">
                                 <div class="middle aligned column">
@@ -279,13 +268,6 @@
                               <div class="ui vertical divider">
                               </div>
                             </div>
-                          <!-- <div class="ui two column very relaxed stackable grid">
-                              <div id="displaySelectedEventTitle">
-                              </div>
-                              <div id="displaySelectedEventImage">
-                                <h2>Image</h2>
-                              </div>
-                          </div> -->
                         </div>
                         <div class="content">
                             <div class="ui two column very relaxed stackable grid">
@@ -378,7 +360,51 @@
                               Yes
                             </div>
                           </div>
+                      </div>
+
+
+                      <div class="ui basic modal" id="listAllEventsModal">
+                        <div class="ui icon header">
+                          <h1>Events</h1>
                         </div>
+
+                        <div class="content">
+                            <div class="ui five column very relaxed stackable grid">
+
+                              <div class="three wide column">
+                                <h3>Start Time</h3>
+                                <p id="listEventsStartTime"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>End Time</h3>
+                                <p id="listEventsEndTime"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>Event Title</h3>
+                                <p id="listEventsTitle"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>Location</h3>
+                                <p id="listEventsLocation"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>Show Details</h3>
+                                <p id="listEventsDetails"></p>
+                                <div class="ui divider"></div>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
 
             <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
             <script src="logic.js"></script>
