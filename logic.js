@@ -34,20 +34,21 @@ var weekViewButton = $("#weekView");
 
 
 // input Form listeners
+var startTimeInput = $("#startTInput");
+var startDate = $('#startDate');
+var endTimeInput = $("#endTInput");
+var endDate = $('#endDate');
+var titleInput = $("#titleInput");
+var locationInput = $('#locationInput');
+var organizerInput = $('#organizerInput');
+var websiteInput = $('#websiteInput');
+var statusInput = $('#statusDropdown');
+var categoryInput = $('#categoryInput');
+var extraInput = $('#extraInput');
+var imageInput = $("#imageInput");
 var imageCheckbox = $("#imageCheckbox");
 var alldayInput = $("#alldayInput");
 var submitButton = $("#submitButton");
-var startTimeInput = $("#startTInput");
-var endTimeInput = $("#endTInput");
-var titleInput = $("#titleInput");
-var organizerInput = $('#organizerInput');
-var statusInput = $('#statusDropdown');
-var categoryInput = $('#categoryInput');
-var locationInput = $('#locationInput');
-var websiteInput = $('#websiteInput');
-var imageInput = $("#imageInput");
-var startDate = $('#startDate');
-var endDate = $('#endDate');
 $('#statusDropdown').dropdown();
 $('#categoryDropdown').dropdown();
 
@@ -1110,7 +1111,6 @@ function editEvent(event){
     $('.ui.sidebar').sidebar('toggle');
     refreshFormInput();
 
-    // console.log();
     startDate.val(event.start.substring(0, 10));
     endDate.val(event.end.substring(0, 10));
     startTimeInput.val(event.start.substring(11))
@@ -1120,17 +1120,21 @@ function editEvent(event){
     locationInput.val(event.location);
     websiteInput.val(event.webpage);
     statusInput.dropdown('set selected', event.status);
-    
+    extraInput.val(event.extra);
 
-      if(event.categories.length > 0) {
-        console.log("In if statement");
+    if(event.imageurl != null) {
+          document.getElementById('previewImage').classList.remove('hideImage');
+          $('#previewImage').attr('src', event.imageurl);
+    }
 
-        event.categories.forEach(function(category) {
 
-          $('#categoryDropdown').dropdown('set selected', category.id);
-        })
-      }
+    if(event.categories.length > 0) {
 
+      event.categories.forEach(function(category) {
+
+        $('#categoryDropdown').dropdown('set selected', category.id);
+      })
+    }
 
 
 
@@ -1142,6 +1146,7 @@ function editEvent(event){
     }
 
 }
+
 function deleteEvent(eventID){
 
     $.ajax({
@@ -1178,10 +1183,6 @@ function deleteEvent(eventID){
         getAndCheckEndInput();
       })
 
-      // statusInput.change(function() {
-      //   getStatusInput();
-      // })
-
       startDate.change(function() {
         checkDateValidity();
       })
@@ -1216,11 +1217,16 @@ function deleteEvent(eventID){
 
       imageInput.change(function() {
         if(document.getElementById('imageInput').files.length > 0 && document.getElementById('imageInput').files[0].size < 500000) {
+          if(document.getElementById('imageInput').className == "red") {
+              $('#imageInputField').popup('destroy');
+          }
           document.getElementById('imageInput').classList.remove("red");
-          console.log("Image is okay");
+          $("label[for='imageInput']").text("image selected");
+
         } else {
           document.getElementById('imageInput').classList.add("red");
-          console.log("image is not fine");
+          $('#imageInputField').popup();
+          $('#imageInputField').popup('show');
         }
 
       })
@@ -1231,7 +1237,10 @@ function deleteEvent(eventID){
         if(imageCheckboxValue) {
           document.getElementById('imageInputField').classList.add("disabled");
           document.getElementById('imageInput').classList.remove("red");
+          $('#previewImage').attr('src', "");
           document.getElementById('imageInput').value = "";
+          $("label[for='imageInput']").text("upload image");
+
 
         } else {
           document.getElementById('imageInputField').classList.remove("disabled");
@@ -1241,36 +1250,6 @@ function deleteEvent(eventID){
       })
 
       $('#categoryDropdown').mouseenter(function() {
-
-        // var categoryInput = $('#categoryDropdown').dropdown('get value');
-        // categoryInput = categoryInput.split(',');
-        //
-        //
-        // if(categoryInput.length > 0) {
-        //
-        //   var contained = false;
-        //   var currentInput;
-        //
-        //   categoryInput.forEach(function(input) {
-        //
-        //     allCategories.forEach(function(category) {
-        //       if(input == category.id) {
-        //         contained = true;
-        //       }
-        //       currentInput = input;
-        //
-        //     })
-        //
-        //     if(contained == false) {
-        //       $('#categoryDropdown').dropdown('remove selected', currentInput);
-        //     }
-        //
-        //     })
-        //
-        //
-        // }
-
-
 
         var categoryEntry = [];
         var i = 0;
@@ -1294,12 +1273,8 @@ function deleteEvent(eventID){
 
         categoryBuildString = categoryBuildString + "]}";
 
-        // console.log(categoryBuildString);
-
         var categoryData = JSON.parse(categoryBuildString);
         $('#categoryDropdown').dropdown('setup menu', categoryData);
-        // $('#categoryDropdown').dropdown('refresh');
-        // console.log($('#categoryDropdown').dropdown('get value'));
     })
 
       // remove popup after mouse leaves submit button
@@ -1311,58 +1286,58 @@ function deleteEvent(eventID){
       submitButton.click(async function() {
 
 
-        var locationValue = document.getElementById("locationInput").value;
-        var websiteValue = document.getElementById("websiteInput").value;
-        var alldayValue = $('input[name=allday]').is(':checked');
         var startDate = document.getElementById('startDate').value;
         var endDate = document.getElementById('endDate').value;
+        var locationValue = document.getElementById("locationInput").value;
+        var websiteValue = document.getElementById("websiteInput").value;
+        var extraInput = document.getElementById('extraInput').value;
         var imageCheckboxValue = $('input[name=imageCheckbox]').is(':checked');
+        var alldayValue = $('input[name=allday]').is(':checked');
 
 
-            // get and get values of all mandatory fields
-            // if not given mark them as incomplete
-            var titleValue = getAndCheckTitleInput();
-            var organizerValue = checkAndGetOrganizerInput();
-            var startTimeValue = getAndCheckStartInput();
-            var endTimeValue = getAndCheckEndInput();
-            var statusValue = getStatusInput();
-            var categoryInput = $('#categoryDropdown').dropdown('get value');
-            categoryInput = categoryInput.split(',');
-            var categoryString;
-
-            if(categoryInput[0] == "") {
-              categoryString = "";
-
-            } else {
-
-              categoryString = ',"categories":[';
-              var counter = 0;
-              categoryInput.forEach(function(input) {
-                if(counter == 0) {
-                  categoryString = categoryString + '{"id":' + input + '}';
-                } else {
-                  categoryString = categoryString + ',{"id":' + input + '}';
-                }
-                counter ++;
-              })
-              categoryString = categoryString + ']';
-
-            }
-
-
-
-
+        // get and get values of all mandatory fields
+        // if not given mark them as incomplete
+        var titleValue = getAndCheckTitleInput();
+        var organizerValue = checkAndGetOrganizerInput();
+        var startTimeValue = getAndCheckStartInput();
+        var endTimeValue = getAndCheckEndInput();
+        var statusValue = getStatusInput();
+        var categoryInput = $('#categoryDropdown').dropdown('get value');
+        categoryInput = categoryInput.split(',');
+        var categoryString;
+        var extraString = "";
         var inputIsValid = true;
 
-        // check if all data was entered correctly
-        if(!titleValue || !organizerValue || !startTimeValue || !endTimeValue || !statusValue) {
-            inputIsValid = false;
+        if(categoryInput[0] == "") {
+          categoryString = "";
 
-            submitButton.popup();
-            submitButton.popup('show');
+        } else {
 
-
+          categoryString = ',"categories":[';
+          var counter = 0;
+          categoryInput.forEach(function(input) {
+            if(counter == 0) {
+              categoryString = categoryString + '{"id":' + input + '}';
+            } else {
+              categoryString = categoryString + ',{"id":' + input + '}';
+            }
+            counter ++;
+          })
+          categoryString = categoryString + ']';
         }
+
+        if(extraInput != "") {
+          extraString = ',"extra": "' + extraInput + '"';
+        }
+
+
+      // check if all data was entered correctly
+      if(!titleValue || !organizerValue || !startTimeValue || !endTimeValue || !statusValue) {
+
+        inputIsValid = false;
+        submitButton.popup();
+        submitButton.popup('show');
+      }
 
         // check if times are valid
         checkTimeValidity();
@@ -1397,8 +1372,9 @@ function deleteEvent(eventID){
               var startTime = startDate + "T" + startTimeValue;
               var endTime = endDate + "T" + endTimeValue;
 
+              // ************************ remove before sending ************************************
               // make request with data
-              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTime + '", "end": "' + endTime + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '"' + imageString + categoryString + '}';
+              var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTime + '", "end": "' + endTime + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '"' + imageString + categoryString + extraString + '}';
               console.log(dummyRequest);
 
 
@@ -1434,120 +1410,124 @@ function deleteEvent(eventID){
   }
 
 
-function refreshFormInput() {
+  function refreshFormInput() {
 
-  $('#statusDropdown').dropdown('clear');
-  $('#categoryDropdown').dropdown('clear');
-  $('#alldayField').checkbox('set unchecked');
+    $('#statusDropdown').dropdown('clear');
+    $('#categoryDropdown').dropdown('clear');
+    $('#alldayField').checkbox('set unchecked');
+    $('#imageCheckbox').checkbox('set unchecked');
 
-  document.getElementById('titleInput').value = "";
-  document.getElementById('locationInput').value = "";
-  document.getElementById('organizerInput').value = "";
-  document.getElementById('websiteInput').value = "";
-  document.getElementById('imageInput').value = "";
-  document.getElementById('startDate').value = "";
-  document.getElementById('endDate').value = "";
-  document.getElementById('startTInput').value = "";
-  document.getElementById('endTInput').value = "";
-
-
-
-}
-
-// check current input data
-function getAndCheckTitleInput() {
-
-  var titleInputValue = document.getElementById("titleInput").value;
-  if(titleInputValue == "") {
-    document.getElementById('titleInput').classList.add("red");
-    return false;
-  } else {
-    document.getElementById('titleInput').classList.remove("red");
-    return titleInputValue;
-  }
-}
-
-function checkAndGetOrganizerInput() {
-
-  var organizerInputValue = document.getElementById("organizerInput").value;
-  var regex = new RegExp(/^\S+@\S+\.\S+$/);
-
-  if (organizerInputValue == "" || !regex.test(organizerInputValue)) {
-    document.getElementById('organizerInput').classList.add("red");
-    return false;
-  } else {
-    document.getElementById('organizerInput').classList.remove("red");
-    return organizerInputValue;
-  }
-
-
-
-
-
-
-}
-
-function getAndCheckStartInput() {
-  var startTimeInputValue = document.getElementById("startTInput").value;
-  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
-
-  if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
-
-    document.getElementById('startTInput').classList.add("red");
-    return false;
-  } else {
-
-    document.getElementById('startTInput').classList.remove("red");
-    return startTimeInputValue;
-  }
-}
-
-function getAndCheckEndInput() {
-  var endTimeInputValue = document.getElementById("endTInput").value;
-  var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
-
-  if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
-
-    document.getElementById('endTInput').classList.add("red");
-    return false;
-  } else {
-    document.getElementById('endTInput').classList.remove("red");
-    return endTimeInputValue;
-  }
-}
-
-function getStatusInput() {
-  var statusInputValue = $('#statusDropdown').dropdown('get value');
-
-  if (statusInputValue == "") {
-
-    document.getElementById('statusDropdown').classList.add("red");
-  } else {
-
-    document.getElementById('statusDropdown').classList.remove("red");
-  }
-  return statusInputValue;
-}
-
-function checkDateValidity() {
-  var startDateValue = document.getElementById('startDate').value;
-  var endDateValue = document.getElementById('endDate').value;
-
-  if(startDateValue > endDateValue) {
-    document.getElementById('startDate').classList.add("red");
-    document.getElementById('endDate').classList.add("red");
-
-
-  } else {
-    document.getElementById('startDate').classList.remove("red");
-    document.getElementById('endDate').classList.remove("red");
+    document.getElementById('startDate').value = "";
+    document.getElementById('endDate').value = "";
+    document.getElementById('startTInput').value = "";
+    document.getElementById('endTInput').value = "";
+    document.getElementById('titleInput').value = "";
+    document.getElementById('locationInput').value = "";
+    document.getElementById('organizerInput').value = "";
+    document.getElementById('websiteInput').value = "";
+    document.getElementById('extraInput').value = "";
+    document.getElementById('imageInput').value = "";
+    $('#previewImage').attr('src', "");
+    document.getElementById('previewImage').classList.add("hideImage");
+    $("label[for='imageInput']").text("select image");
 
 
   }
 
-}
+  // check and/or get  current input data
+  function getAndCheckTitleInput() {
 
-function checkTimeValidity() {
+    var titleInputValue = document.getElementById("titleInput").value;
+    if(titleInputValue == "") {
+      document.getElementById('titleInput').classList.add("red");
+      return false;
+    } else {
+      document.getElementById('titleInput').classList.remove("red");
+      return titleInputValue;
+    }
+  }
+
+  function checkAndGetOrganizerInput() {
+
+    var organizerInputValue = document.getElementById("organizerInput").value;
+    var regex = new RegExp(/^\S+@\S+\.\S+$/);
+
+    if (organizerInputValue == "" || !regex.test(organizerInputValue)) {
+      document.getElementById('organizerInput').classList.add("red");
+      return false;
+    } else {
+      document.getElementById('organizerInput').classList.remove("red");
+      return organizerInputValue;
+    }
+
+
+
+
+
+
+  }
+
+  function getAndCheckStartInput() {
+    var startTimeInputValue = document.getElementById("startTInput").value;
+    var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+
+    if (startTimeInputValue == "" || !timeRegex.test(startTimeInputValue)) {
+
+      document.getElementById('startTInput').classList.add("red");
+      return false;
+    } else {
+
+      document.getElementById('startTInput').classList.remove("red");
+      return startTimeInputValue;
+    }
+  }
+
+  function getAndCheckEndInput() {
+    var endTimeInputValue = document.getElementById("endTInput").value;
+    var timeRegex = new RegExp(/^\d{2}:\d{2}$/);
+
+    if (endTimeInput == "" || !timeRegex.test(endTimeInputValue)) {
+
+      document.getElementById('endTInput').classList.add("red");
+      return false;
+    } else {
+      document.getElementById('endTInput').classList.remove("red");
+      return endTimeInputValue;
+    }
+  }
+
+  function getStatusInput() {
+    var statusInputValue = $('#statusDropdown').dropdown('get value');
+
+    if (statusInputValue == "") {
+
+      document.getElementById('statusDropdown').classList.add("red");
+    } else {
+
+      document.getElementById('statusDropdown').classList.remove("red");
+    }
+    return statusInputValue;
+  }
+
+  function checkDateValidity() {
+    var startDateValue = document.getElementById('startDate').value;
+    var endDateValue = document.getElementById('endDate').value;
+
+    if(startDateValue > endDateValue) {
+      document.getElementById('startDate').classList.add("red");
+      document.getElementById('endDate').classList.add("red");
+
+
+    } else {
+      document.getElementById('startDate').classList.remove("red");
+      document.getElementById('endDate').classList.remove("red");
+
+
+    }
+
+  }
+
+  function checkTimeValidity() {
   startTimeValue = getAndCheckStartInput();
   endTimeValue = getAndCheckEndInput();
 
@@ -1572,15 +1552,13 @@ function checkTimeValidity() {
 
 }
 
-function convertImageToB64(file) {
+  function convertImageToB64(file) {
   return new Promise(resolve => {
     var reader = new FileReader();
     reader.onabort = function() {
-      console.log("Aborting");
       reject(null);
     }
     reader.onloadend = function() {
-      console.log("Success");
         resolve(reader.result);
     }
     reader.readAsDataURL(file);
