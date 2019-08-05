@@ -62,6 +62,17 @@ var confirmDeleteCategoryButton = $("#confirmDeleteCategoryButton");
 
 // modal listeners
 var displaySelectedEventModal = $("#displaySelectedEventModal");
+var displaySelectedEventTitle = $("#displaySelectedEventTitle");
+var displaySelectedEventStartTime = $("#displaySelectedEventStartTime");
+var displaySelectedEventEndTime = $("#displaySelectedEventEndTime");
+var displaySelectedEventLocation = $("#displaySelectedEventLocation");
+var displaySelectedEventOrganizer = $("#displaySelectedEventOrganizer");
+var displaySelectedEventWebsite = $("#displaySelectedEventWebsite");
+var displaySelectedEventStatus = $("#displaySelectedEventStatus");
+var displaySelectedEventCategories = $("#displaySelectedEventCategories");
+var displaySelectedEventNotes = $("#displaySelectedEventNotes");
+var displaySelectedEventImage = $("#displaySelectedEventImage");
+
 var deleteEventModal = $("#deleteEventModal");
 var confirmDeleteEventButton = $("#confirmDeleteEventButton");
 
@@ -122,14 +133,14 @@ function loadData(){
 
 
     }).catch(function(message){
-        console.log("Error loading data");
+        // console.log("Error loading data");
     })
 
 }
 
 
 function loadEventData(){
-    console.log("loading events");
+    // console.log("loading events");
 
     return new Promise(function(resolve, reject){
 
@@ -143,7 +154,7 @@ function loadEventData(){
 }
 
 function loadCategoryData(){
-    console.log("loading categories");
+    // console.log("loading categories");
     return new Promise(function(resolve, reject){
 
         $.get("https://dhbw.cheekbyte.de/calendar/500/categories", function(data){
@@ -204,7 +215,7 @@ function displayMonthView(month, year){
             else if(dateCounter <= daysInMonth){
                 // adding id to column
                 var columnID = calculateIDMonthView(year, month, dateCounter);
-                // console.log("columnID: " + columnID);
+                // // console.log("columnID: " + columnID);
                 column = "<td id='" + columnID + "' class='dayCellMonthView'>";
                 column = column + "<h1 class='createNewEventsArea' id='createNew" + columnID + "'>" + dateCounter + "</h1>";
                 columnIDs.push(columnID);
@@ -260,7 +271,7 @@ function addClickListenersMonthView(columnIDs){
 
             $('.ui.sidebar').sidebar('toggle');
             refreshFormInput();
-            // console.log();
+            // // console.log();
             startDate.val(result);
             endDate.val(result);
 
@@ -271,18 +282,129 @@ function addClickListenersMonthView(columnIDs){
 function displayEventsMonthView(){
 
     var eventStartString;
+    var eventEndString
 
-    var eventYear;
-    var eventMonth;
-    var eventDate;
+    var eventStartYear;
+    var eventEndYear;
+    var eventStartMonth;
+    var eventEndMonth;
+    var eventStartDate;
+    var eventEndDate;
 
-    var eventDateID;
+    var eventDateIDS;
     var eventDIV;
 
     var hideEvent;
 
 
-    // console.log("hideCategories: " + hideCategories)
+    // // console.log("hideCategories: " + hideCategories)
+
+    eventData.forEach(function(event){
+
+        hideEvent = true;
+        // check whether all of the events categories are in the hideCategoryArray
+
+        // // console.log("Event: " + event.title + " has categories: ");
+
+        if(event.categories.length > 0){
+            event.categories.forEach(function(category){
+
+                // // console.log(category.id);
+                // // console.log("**********************");
+
+                if(!hideCategories.includes(category.id)){
+                    // // console.log("hideEvent set to false");
+                    hideEvent = false;
+                }
+            })
+        }
+        else{
+            hideEvent = false;
+        }
+
+        eventStartString = event.start;
+        eventEndString = event.end;
+
+        eventStartYear = eventStartString.slice(0, 4);
+        eventEndYear = eventEndString.slice(0, 4);
+        eventStartMonth = eventStartString.slice(5, 7);
+        eventEndMonth = eventEndString.slice(5, 7);
+
+        // because currentMonth is only one digit if below 10
+        if(eventStartMonth.slice(0, 1) === "0"){
+            eventStartMonth = "" + eventStartMonth.slice(1);
+        }
+        if(eventEndMonth.slice(0,1) === "0"){
+            eventEndMonth = "" + eventEndMonth.slice(1);
+        }
+
+        eventStartDate = eventStartString.slice(8, 10);
+        eventEndDate = eventEndString.slice(8, 10);
+
+        eventStartYear = parseInt(eventStartYear);
+        eventEndYear = parseInt(eventEndYear);
+        eventStartMonth = parseInt(eventStartMonth) -1;
+        eventEndMonth = parseInt(eventEndMonth) -1;
+        eventStartDate = parseInt(eventStartDate);
+        eventEndDate = parseInt(eventEndDate);
+
+        // if(eventYear === currentYear && eventMonth === currentMonth){
+
+        // cell cleared first because event might already be displayed
+
+        var formerEventDiv = $("." + event.id);
+        formerEventDiv.remove();
+
+        eventDateIDS = calculateIDSMonthView(eventStartYear, eventEndYear, eventStartMonth, eventEndMonth, eventStartDate, eventEndDate);
+
+        eventDateIDS.forEach(function(eventDateID){
+
+            console.log(eventDateID);
+                // eventDateID = calculateIDMonthView(eventStartYear, eventStartMonth, eventStartDate);
+                eventDIV = generateEventDIV(event, hideEvent);
+                var eventDateCell = $("#" + eventDateID);
+
+                // eventDateCell.empty();
+                eventDateCell.append(eventDIV);
+                $(".deleteSpan" + event.id).on("click", function(){
+    
+                    deleteEventModal.modal({
+                        onApprove : function(){
+                            $("." + event.id).remove();
+                            deleteEvent(event.id);
+                        }
+    
+                    }).modal("show");
+    
+                })
+                $(".displaySelectedEvent" + event.id).on("click", function(){
+                    displaySelectedEventView(event)
+                })    
+
+        })
+
+        
+    })
+
+}
+
+function displayEventsWeekView(){
+    var eventStartString;
+
+    var eventStartYear;
+    var eventStartMonth;
+    var eventStartDate;
+    var eventEndDate;
+    var eventStartHour;
+    var eventEndHour;
+    var eventStartMinutes;
+    var eventEndMinutes;
+
+    // var eventDateID;
+    var eventDateIDS;
+    var eventDIV;
+
+    var hideEvent;
 
     eventData.forEach(function(event){
 
@@ -308,137 +430,68 @@ function displayEventsMonthView(){
         }
 
         eventStartString = event.start;
+        eventEndString = event.end;
 
-        eventYear = eventStartString.slice(0, 4);
-        eventMonth = eventStartString.slice(5, 7);
+        eventStartYear = eventStartString.slice(0, 4);
+        eventStartMonth = eventStartString.slice(5, 7);
+        eventStartDate = eventStartString.slice(8, 10);
+        eventEndDate = eventEndString.slice(8, 10);
+        eventStartHour = eventStartString.slice(11, 13);
+        eventEndHour = eventEndString.slice(11, 13);
+        eventStartMinutes = eventStartString.slice(14, 17);
+        eventEndMinutes = eventEndString.slice(14, 17);
 
         // because currentMonth is only one digit if below 10
-        if(eventMonth.slice(0, 1) === "0"){
-            eventMonth = "" + eventMonth.slice(1);
+        if(eventStartMonth.slice(0, 1) === "0"){
+            eventStartMonth = "" + eventStartMonth.slice(1);
         }
 
-        eventDate = eventStartString.slice(8, 10);
 
-        eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth) -1;
-        eventDate = parseInt(eventDate);
+        eventStartYear = parseInt(eventStartYear);
+        eventStartMonth = parseInt(eventStartMonth) -1;
+        eventStartDate = parseInt(eventStartDate);
+        eventEndDate = parseInt(eventEndDate);
+        eventStartHour = parseInt(eventStartHour);
+        eventEndHour = parseInt(eventEndHour);
+        eventStartMinutes = parseInt(eventStartMinutes);
+        eventEndMinutes = parseInt(eventEndMinutes);
 
-        // if(eventYear === currentYear && eventMonth === currentMonth){
+        var formerEventDiv = $("." + event.id);
+        formerEventDiv.remove();
 
-            eventDateID = calculateIDMonthView(eventYear, eventMonth, eventDate);
+        eventDateIDS = calculateIDSWeekView(eventStartYear, eventStartMonth, eventStartDate, eventEndDate, eventStartHour, eventEndHour, eventStartMinutes, eventEndMinutes);
+
+        eventDateIDS.forEach(function(eventDateID){
+            console.log("eventDateID: " + eventDateID);
+
+            // eventDateID = calculateIDWeekView(eventYear, eventMonth, eventStartDate, eventStartHour, eventStartMinutes);
+
             eventDIV = generateEventDIV(event, hideEvent);
+
             var eventDateCell = $("#" + eventDateID);
 
-        // cell cleared first because event might already be displayed
+            // console.log("appending: " + eventDIV + " to " + eventDateCell);
 
-            var formerEventDiv = $("#" + event.id);
-            formerEventDiv.remove();
-
-            // eventDateCell.empty();
             eventDateCell.append(eventDIV);
-            $("#deleteSpan" + event.id).on("click", function(){
+
+            $(".deleteSpan" + event.id).on("click", function(){
 
                 deleteEventModal.modal({
                     onApprove : function(){
-                        $("#" + event.id).remove();
+                        $("." + event.id).remove();
                         deleteEvent(event.id);
                     }
 
                 }).modal("show");
 
             })
-            $("#editEvent" + event.id).on("click", function(){
-                displaySelectedEventView(event)
+            $(".displaySelectedEvent" + event.id).on("click", function(){
+                displaySelectedEventView(event);
             })
 
-        // }
 
-
-    })
-
-}
-
-function displayEventsWeekView(){
-    var eventStartString;
-
-    var eventYear;
-    var eventMonth;
-    var eventDate;
-
-    var eventDateID;
-    var eventDIV;
-
-    var hideEvent;
-
-    eventData.forEach(function(event){
-
-        hideEvent = true;
-        // check whether all of the events categories are in the hideCategoryArray
-
-        console.log("Event: " + event.title + " has categories: ");
-
-        if(event.categories.length > 0){
-            event.categories.forEach(function(category){
-
-                console.log(category.id);
-                console.log("**********************");
-
-                if(!hideCategories.includes(category.id)){
-                    console.log("hideEvent set to false");
-                    hideEvent = false;
-                }
-            })
-        }
-        else{
-            hideEvent = false;
-        }
-
-        eventStartString = event.start;
-
-        eventYear = eventStartString.slice(0, 4);
-        eventMonth = eventStartString.slice(5, 7);
-        eventDate = eventStartString.slice(8, 10);
-        eventHour = eventStartString.slice(11, 13);
-        eventMinutes = eventStartString.slice(15, 17);
-
-        // because currentMonth is only one digit if below 10
-        if(eventMonth.slice(0, 1) === "0"){
-            eventMonth = "" + eventMonth.slice(1);
-        }
-
-
-        eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth) -1;
-        eventDate = parseInt(eventDate);
-        eventHour = parseInt(eventHour);
-        eventMinutes = parseInt(eventMinutes);
-
-            eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
-
-            eventDIV = generateEventDIV(event, hideEvent);
-
-            var eventDateCell = $("#" + eventDateID);
-
-            var formerEventDiv = $("#" + event.id);
-            formerEventDiv.remove();
-            console.log("appending: " + eventDIV + " to " + eventDateCell);
-
-            eventDateCell.append(eventDIV);
-
-            $("#deleteSpan" + event.id).on("click", function(){
-
-                deleteEventModal.modal({
-                    onApprove : function(){
-                        $("#" + event.id).remove();
-                        deleteEvent(event.id);
-                    }
-
-                }).modal("show");
-
-            })
-            $("#editEvent" + event.id).on("click", function(){
-                editEvent(event);
-            })
+        })
+            
 
     })
 
@@ -456,30 +509,30 @@ function nextMonth(){
     var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
     // calculates the date of the next saturday
     var lastDateOfWeek = currentDate - currentDay + 6;
-    // console.log("*******************************************");
-    // console.log("currentDate: " + currentDate);
-    // console.log("currentDay: " + currentDay);
-    // console.log("lastDateOfWeek: " + lastDateOfWeek);
+    // // console.log("*******************************************");
+    // // console.log("currentDate: " + currentDate);
+    // // console.log("currentDay: " + currentDay);
+    // // console.log("lastDateOfWeek: " + lastDateOfWeek);
 
     // if the last saturday has a higher date than possible the lastDateOfWeek is not on a saturday which means that the month ends prior in the week
     if(lastDateOfWeek > daysInMonth){
         lastDateOfWeek = daysInMonth;
-        // console.log("IN IF - lastDateOfWeek: " + lastDateOfWeek);
+        // // console.log("IN IF - lastDateOfWeek: " + lastDateOfWeek);
     }
     // calculates the days that are left in the month
     var daysLeftInMonth = daysInMonth - currentDate;
-    // console.log("daysLeftInMonth: " + daysLeftInMonth);
+    // // console.log("daysLeftInMonth: " + daysLeftInMonth);
     if(currentMonth === 11){
         currentYear++;
         currentMonth = 0;
         currentDate = 7 - (daysLeftInMonth % 7);
-        // console.log("currentDate: " + currentDate);
+        // // console.log("currentDate: " + currentDate);
     }
     else{
         currentMonth++;
         // calculates the new current date displayed. It will always be the same day of the week as in the month before.
         currentDate = 7 - (daysLeftInMonth % 7);
-        // console.log("currentDate: " + currentDate);
+        // // console.log("currentDate: " + currentDate);
     }
 
 }
@@ -487,16 +540,16 @@ function nextMonth(){
 function nextWeek(){
 
     var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // console.log("*******************************************");
-    // console.log("daysInMonth: " + daysInMonth);
+    // // console.log("*******************************************");
+    // // console.log("daysInMonth: " + daysInMonth);
     var lastDateOfWeek = currentDate - currentDay + 6;
     if(lastDateOfWeek > daysInMonth){
         lastDateOfWeek = daysInMonth;
     }
-    // console.log("lastDateOfWeek: " + lastDateOfWeek);
+    // // console.log("lastDateOfWeek: " + lastDateOfWeek);
 
     var daysLeftInMonth = daysInMonth - currentDate;
-    // console.log("daysLeftInMonth: " + daysLeftInMonth);
+    // // console.log("daysLeftInMonth: " + daysLeftInMonth);
 
     if(daysLeftInMonth < 7){
         if(currentMonth === 11){
@@ -507,7 +560,7 @@ function nextWeek(){
             currentMonth++;
         }
         currentDate = 7 - daysLeftInMonth;
-        // console.log("Current Date: " + currentDate);
+        // // console.log("Current Date: " + currentDate);
     }
     else{
         currentDate += 7;
@@ -517,8 +570,8 @@ function nextWeek(){
 
 function previousMonth(){
     daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
-    // console.log("#############################################");
-    // console.log("daysInPrevMonth: " + daysInPrevMonth);
+    // // console.log("#############################################");
+    // // console.log("daysInPrevMonth: " + daysInPrevMonth);
     if(currentMonth === 0){
         currentYear--;
         currentMonth = 11;
@@ -526,9 +579,9 @@ function previousMonth(){
     else{
         currentMonth--;
     }
-    // console.log("currenMonth: " + currentMonth);
+    // // console.log("currenMonth: " + currentMonth);
     currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
-    // console.log("currentDate: " + currentDate);
+    // // console.log("currentDate: " + currentDate);
 
 }
 
@@ -560,8 +613,8 @@ function displayWeekView(minutes, hour, day, date, month, year){
     timeTracker.setHours(00);
     timeTracker.setMinutes(00);
 
-    // console.log("hours: " + hours);
-    // console.log("minutes: " + minutes);
+    // // console.log("hours: " + hours);
+    // // console.log("minutes: " + minutes);
 
     timeHeader.show();
     calendarBody.empty();
@@ -602,7 +655,7 @@ function displayWeekView(minutes, hour, day, date, month, year){
         for(j = 0; j < 7; j++){
 
             var columnID = setIDWeekView(j, day, date, hoursString, minutesString);
-            // console.log("dateID: " + columnID);
+            // // console.log("dateID: " + columnID);
             var column = "<td id='" + columnID + "'>";
             column += "<h1 class='createNewEventsArea' id='createNewEventsArea" + columnID + "'></h1>"
             column = column + "</td>";
@@ -637,8 +690,8 @@ function addClickListenersWeekView(columnIDs){
             date = columnID.substring(0, splitIndex);
             time = columnID.substring(splitIndex+1);
             time = time.substring(0, 2) + ":" + time.substring(2, 4);
-            console.log("date: " + date);
-            console.log("time: " + time);
+            // console.log("date: " + date);
+            // console.log("time: " + time);
 
             var inputString = date;
             var regEx1 = /-(\d)-/;
@@ -659,7 +712,7 @@ function addClickListenersWeekView(columnIDs){
             $('.ui.sidebar').sidebar('toggle');
             refreshFormInput();
 
-            console.log(columnID);
+            // console.log(columnID);
             startDate.val(result);
             endDate.val(result);
             startTimeInput.val(time);
@@ -672,7 +725,7 @@ function displayDateSpans(day, date){
 
     var daysinPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear);
     var daysInCurrentMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // console.log(date-day);
+    // // console.log(date-day);
     var weekDates = [];
 
     dateNamingCounter = date-day;
@@ -701,15 +754,55 @@ function displayDateSpans(day, date){
 }
 
 function calculateIDMonthView(year, month, date){
+
+    console.log("" + year + "-" + month + "-" + date);
     return "" + year + "-" + month + "-" + date;
 
+}
+
+function calculateIDSMonthView(startYear, endYear, startMonth, endMonth, startDate, endDate){
+
+    var eventIDS = [];
+    var daysInStartMonth = calculateDaysInMonth(startMonth, startYear);
+
+    console.log('***********************************');
+    console.log("EventStartYear: " + startYear);
+    console.log("EventEndYear: " + endYear);
+    console.log("EventStartMonth: " + startMonth);
+    console.log("EventEndMonth: " + endMonth);
+    console.log("EventStartDate: " + startDate);
+    console.log("EventEndDate: " + endDate);
+    console.log("daysInStartMonth: " + daysInStartMonth);
+
+    while(startYear <= endYear){
+        console.log("Outer While Loop");
+
+        while((startMonth <= endMonth || startYear < endYear) && startMonth <= 11){
+            console.log("Middle While Loop");
+
+            while((startDate <= endDate || startMonth < endMonth || startYear < endYear) && startDate <= daysInStartMonth){
+                console.log("Inner While Loop");
+                eventIDS.push(calculateIDMonthView(startYear, startMonth, startDate));
+                startDate++
+            }
+            startDate = 1;
+            startMonth++;
+            // needs to be updated for every month
+            daysInStartMonth = calculateDaysInMonth(startMonth, startYear);
+        }
+        startMonth = 0;
+        startYear++;
+        daysInStartMonth = calculateDaysInMonth(startMonth, startYear);
+    }
+
+    return eventIDS;
 }
 // function that sets the ids in the current week View displayed to the user
 function setIDWeekView(dayToCalculate, day, date, hour, minutes){
 
     var daysinPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear);
     var daysInCurrentMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // console.log(date-day);
+    // // console.log(date-day);
     var weekDates = [];
 
     dateNamingCounter = date-day;
@@ -749,6 +842,33 @@ function calculateIDWeekView(year, month, date, hour, minutes){
 
     return "" + year + "-" + month + "-" + date + "T" + hour + minutes;
 
+}
+
+function calculateIDSWeekView(year, month, startDate, endDate, startHour, endHour, startMinutes, endMinutes){
+
+    var eventIDS = [];
+
+    console.log('***********************************');
+    console.log("EventStartDate: " + startDate);
+
+    while(startDate <= endDate){
+
+        while((startHour <= endHour || startDate < endDate) && startHour <= 23){
+
+            while((startMinutes < endMinutes || startHour < endHour || startDate < endDate) && startMinutes <= 59){
+                console.log("startMinutes: " + startMinutes);
+                console.log("endMinutes: " + endMinutes);
+                eventIDS.push(calculateIDWeekView(year, month, startDate, startHour, startMinutes));
+                startMinutes += 30;
+            }
+            startMinutes = 0;
+            startHour++;
+        }
+        startHour = 0;
+        startDate++;
+    }
+
+    return eventIDS;
 }
 
 function hideDateSpans(){
@@ -830,11 +950,11 @@ function generateEventDIV(event, hideEvent){
     var htmlString;
     if(!hideEvent){
 
-        deleteSpan = '<span id="deleteSpan' + event.id + '"><i class="trash alternate icon"></i></span>';
-        htmlString = '<div id="' + event.id + '">';
+        deleteSpan = '<span class="deleteSpan' + event.id + '"><i class="trash alternate icon"></i></span>';
+        htmlString = '<div class="' + event.id + '">';
         // htmlString += '<h3>' + eventDate + '</h3>';
         htmlString += deleteSpan;
-        htmlString += '<p id="editEvent' + event.id + '">' + event.title + '</p>';
+        htmlString += '<p class="displaySelectedEvent' + event.id + '">' + event.title + '</p>';
 
         htmlString += '</div>';
     }
@@ -882,8 +1002,8 @@ function arrayRemove(arr, value) {
 // Categories: Create and Delete and Display
 
 function displayCategories(){
-    // console.log("displayCategories()")
-    // console.log("selectedCategories:" + selectedCategories);
+    // // console.log("displayCategories()")
+    // // console.log("selectedCategories:" + selectedCategories);
 
     var categoryItem;
     allCategoriesDisplay.empty();
@@ -941,13 +1061,13 @@ function postCategory(){
             url: "https://dhbw.cheekbyte.de/calendar/500/categories",
             data: formData,
             success: function(){
-                console.log("Successfully posted category");
+                // console.log("Successfully posted category");
             },
             dataType: "json",
             contentType : "application/json"
           }).done(function(response){
               allCategories = [];
-              console.log(response);
+              // console.log(response);
               loadData();
 
           })
@@ -959,15 +1079,15 @@ function postCategory(){
 function deleteCategory(categoryID){
 
     Promise.all(deleteCategoryFromEvents(categoryID)).then(function(){
-        console.log("promises resolved");
+        // console.log("promises resolved");
         $.ajax({
             type: "DELETE",
             url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID,
             success: function(){
-                console.log("Successfully deleted category");
+                // console.log("Successfully deleted category");
             },
           }).done(function(response){
-              console.log(response);
+              // console.log(response);
               loadData();
           })
       });
@@ -995,7 +1115,7 @@ function deleteCategoryFromEvents(categoryID){
 //                         content: fileContent
 //                     });
 //                 }).catch ((error) = > {
-//                     console.log('Error: ', error);
+//                     // console.log('Error: ', error);
 //                 })
 //         );
 //     });
@@ -1014,13 +1134,13 @@ var promises = [];
                     type: "DELETE",
                     url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID + "/" + event.id,
                     success: function(){
-                        console.log("Successfully deleted category from event: " + event.title);
+                        // console.log("Successfully deleted category from event: " + event.title);
                     },
                 })
             );
         }
         else{
-            console.log("Category not contained in event: " + event.title);
+            // console.log("Category not contained in event: " + event.title);
         }
 
     })
@@ -1036,7 +1156,7 @@ function eventContainsCategory(event, categoryID){
     event.categories.forEach(function(category){
         if(category.id === categoryID){
             containsCategory = true;
-            console.log(event.title + " contains category with id: " + categoryID);
+            // console.log(event.title + " contains category with id: " + categoryID);
         }
     })
 
@@ -1068,12 +1188,12 @@ function generateCategoryItem(category){
     // htmlString += nameParagraph;
     // htmlString += '</li>';
 
-    var htmlString = '<div ' + style + ' class="item ui button" id="' + category.id + '">';
+    var htmlString = '<div ' + style + ' class="item ui button reducedMargin" id="' + category.id + '">';
     htmlString += '<div class="content">'
     + '<div class="flexCategory header">' + deleteSpan + nameParagraph + '</div>';
     // htmlString += deleteSpan;
     htmlString += '</div>';
-    // console.log(htmlString);
+    // // console.log(htmlString);
 
     return htmlString;
 }
@@ -1088,17 +1208,84 @@ function generateCategoryItem(category){
 
 function displaySelectedEventView(event){
 
+    var startDate;
+    var startMonth;
+    var startYear;
+    var startHour;
+    var startMinutes;
+
+    var endDate;
+    var endMonth;
+    var endYear;
+    var endHour;
+    var endMinutes;
+
+    var eventStartString;
+    var timeStartString
+    var eventEndString;
+    var categorySpan;
+
+    displaySelectedEventTitle.empty();
+    displaySelectedEventStartTime.empty();
+    displaySelectedEventEndTime.empty();
+    displaySelectedEventLocation.empty();
+    displaySelectedEventOrganizer.empty();
+    displaySelectedEventWebsite.empty();
+    displaySelectedEventStatus.empty();
+    displaySelectedEventCategories.empty();
+    displaySelectedEventNotes.empty();
+
+
     $('#displaySelectedEventModal')
     .modal({
         onApprove: function(){
             editEvent(event);
         },
         onCancel: function(){
-            console.log("Cancel button pressed");
+            // console.log("Cancel button pressed");
         },
         inverted: true
     })
     .modal('show');
+;
+
+    displaySelectedEventTitle.append(event.title);
+
+    startDate = event.start.substring(8, 10);
+    startMonth = event.start.substring(5, 7);
+    startYear = event.start.substring(0, 4);
+
+    startHour = event.start.substring(11, 13);
+    startMinutes = event.start.substring(14);
+    timeStartString = "<span class='displaySelectedEventTimeSpan'>" + startHour + ":" + startMinutes + "</span>";
+
+    eventStartString = startDate + "." + startMonth + "." + startYear + timeStartString;
+
+    endDate = event.end.substring(8, 10);
+    endMonth = event.end.substring(5, 7);
+    endYear = event.end.substring(0, 4);
+
+    endHour = event.end.substring(11, 13);
+    endMinutes = event.end.substring(14);
+    timeEndString = "<span class='displaySelectedEventTimeSpan'>" + endHour + ":" + endMinutes + "</span>";
+
+    eventEndString = endDate + "." + endMonth + "." + endYear + timeEndString;
+
+
+    displaySelectedEventStartTime.append(eventStartString);
+    displaySelectedEventEndTime.append(eventEndString);
+    displaySelectedEventLocation.append(event.location);
+    displaySelectedEventOrganizer.append(event.organizer);
+    displaySelectedEventWebsite.append(event.webpage);
+    displaySelectedEventStatus.append(event.status);
+    event.categories.forEach(function(category){
+        categorySpan = "<span class='displaySelectedEventCategorySpan'>" + category.name + "</span>";
+        displaySelectedEventCategories.append(categorySpan);
+
+    })
+    displaySelectedEventNotes.append(event.extra);
+    displaySelectedEventImage.attr("src", event.imageurl);
+
 
 }
 
@@ -1153,10 +1340,10 @@ function deleteEvent(eventID){
         type: "DELETE",
         url: "https://dhbw.cheekbyte.de/calendar/500/events/" + eventID,
         success: function(){
-            console.log("Successfully deleted event");
+            // console.log("Successfully deleted event");
         },
       }).done(function(response){
-          console.log(response);
+          // console.log(response);
           loadData();
       })
 
@@ -1349,7 +1536,7 @@ function deleteEvent(eventID){
             var imageString = "";
             if(document.getElementById('imageInput').files.length > 0 && document.getElementById('imageInput').files[0].size < 500000) {
             var imageB64 = await convertImageToB64(document.getElementById('imageInput').files[0]);
-            console.log(imageB64);
+            // console.log(imageB64);
               if(imageB64 != null) {
                 imageString = ',"imagedata": "' + imageB64 + '"';
               }
@@ -1375,16 +1562,16 @@ function deleteEvent(eventID){
               // ************************ remove before sending ************************************
               // make request with data
               var dummyRequest = '{ "title": "' + titleValue + '", "location": "' + locationValue + '", "organizer": "' + organizerValue + '", "start": "' + startTime + '", "end": "' + endTime + '", "status": "' + statusValue + '", "allday": ' + alldayValue + ', "webpage": "' + websiteValue + '"' + imageString + categoryString + extraString + '}';
-              console.log(dummyRequest);
+              // console.log(dummyRequest);
 
 
             // var requestData = JSON.parse(dummyRequest);
             var requestData = dummyRequest;
-            // console.log(requestData);
+            // // console.log(requestData);
 
             if(!editMode){
                 $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
-                    console.log(status);
+                    // console.log(status);
                     loadData();
                   });
             }
@@ -1396,7 +1583,7 @@ function deleteEvent(eventID){
                     dataType: "json",
                     contentType: 'application/json',
                     success: function(result) {
-                        console.log("Edit event: " + editID);
+                        // console.log("Edit event: " + editID);
                         editID = "";
                         loadData();
                     }

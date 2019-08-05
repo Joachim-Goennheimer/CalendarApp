@@ -17,8 +17,23 @@ td > div {
 .createNewEventsArea {
   background-color: whitesmoke;
 }
-/* categoryDisplay */
 
+.currentDateStyle > h1 {
+  /* background-color: oldlace !important; */
+  color: coral;
+}
+
+/* eventDisplay */
+
+.displaySelectedEventCategorySpan {
+  margin-right: 10px;
+
+}
+
+.displaySelectedEventTimeSpan {
+  float: right;
+}
+/* categoryDisplay */
 
 #categoryContainer {
   display: flex;
@@ -33,8 +48,15 @@ td > div {
   width: 30%;
 }
 
+
+
 #allCategoriesDisplay {
   list-style: none;
+}
+
+.reducedMargin {
+  margin-bottom: -10px !important;
+  margin-top: 10px !important;
 }
 
 .flexCategory {
@@ -45,6 +67,10 @@ td > div {
 .hideCategory {
   background-color: gray !important;
   color: aliceblue;
+}
+
+#categoryNameInput {
+  margin-bottom: -20px;
 }
 
 p:nth-child(1) {
@@ -76,11 +102,6 @@ p:nth-child(1) {
 
 .button {
   height: 70%;
-}
-
-.currentDateStyle {
-  background-color: coral !important;
-
 }
 
 #weekView {
