@@ -94,5 +94,6 @@ p:nth-child(1) {
   border-color: red !important;
 }
 
-
-
+.hideImage {
+   display: none;
+}
