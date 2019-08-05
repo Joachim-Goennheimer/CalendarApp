@@ -18,14 +18,14 @@
     </head>
 
     <body>
-                    <div class="ui sidebar inverted vertical menu">
-                       <form class="ui form segment" method="POST">
+                          <div class="ui sidebar inverted vertical menu">
+                            <form class="ui form segment" method="POST">
 
                               <div class="two fields">
 
-                                  <div class="six wide field required" id="startTInputField" >
-                                    <label>Start time</label>
-                                    <input placeholder="--:--" type="text" name="startTime" id="startTInput" value="">
+                                <div class="six wide field required" id="startTInputField" >
+                                  <label>Start time</label>
+                                  <input placeholder="--:--" type="text" name="startTime" id="startTInput" value="">
 
                                 </div>
 
@@ -36,20 +36,18 @@
                               </div>
 
 
+                              <div class="two fields">
 
-                                <div class="two fields">
-
-                                  <div class="six wide field required" id="endTInputField">
-                                    <label>End time</label>
-                                    <input placeholder="--:--" type="text" name="endTime" id="endTInput" value="">
-                                  </div>
-
-                                  <div class="ten wide field">
-                                    <label>Event end date</label>
-                                    <input name="dateInput" value="" type="date" id="endDate">
-                                  </div>
+                                <div class="six wide field required" id="endTInputField">
+                                  <label>End time</label>
+                                  <input placeholder="--:--" type="text" name="endTime" id="endTInput" value="">
                                 </div>
 
+                                <div class="ten wide field">
+                                  <label>Event end date</label>
+                                  <input name="dateInput" value="" type="date" id="endDate">
+                                </div>
+                              </div>
 
 
                                 <div class="field required">
@@ -69,124 +67,88 @@
                                   <input placeholder="Website" name="webpage" type="text" maxlength="100" id="websiteInput" value="">
                                 </div>
 
-                                <!-- <div class="field">
-                                  <lable>Status</label>
-                                  <div class="ui fluid selection dropdown" id="statusDropdown">
-                                      <input type="hidden" id="statusInput">
-                                        <i class="dropdown icon"></i>
-                                        <div class="default text required" required>Status of the event</div>
-                                          <div class="menu" id="statusMenu">
-                                            <div class="item" data-value="Free">Free</div>
-                                            <div class="item" data-value="Busy">Busy</div>
-                                            <div class="item" data-value="Tentative">Tentative</div>
-                                          </div>
-                                  </div>
-                                </div> -->
 
                                 <div class="field required">
-                                     <label>Status</label>
-                                     <div class="ui fluid selection dropdown" id="statusDropdown">
-                                       <input type="hidden" id="statusInput">
-                                       <div class="default text">Status of the event</div>
+                                  <label>Status</label>
+                                  <div class="ui fluid selection dropdown" id="statusDropdown">
+                                    <input type="hidden" id="statusInput">
+                                    <div class="default text">Status of the event</div>
+                                    <i class="dropdown icon"></i>
+                                    <div class="menu" id="statusMenu">
+                                      <div class="item" data-value="Free">Free</div>
+                                      <div class="item" data-value="Busy">Busy</div>
+                                      <div class="item" data-value="Tentative">Tentative</div>
+                                    </div>
+                                  </div>
+                                </div>
+
+
+                                   <div class="field">
+                                     <label>Categories</label>
+                                     <div class="ui fluid multiple selection dropdown" id="categoryDropdown">
+                                       <input type="hidden" id="categoryInput">
+                                       <div class="default text">Categories of the event</div>
                                        <i class="dropdown icon"></i>
-                                       <div class="menu" id="statusMenu">
-                                         <div class="item" data-value="Free">Free</div>
-                                         <div class="item" data-value="Busy">Busy</div>
-                                         <div class="item" data-value="Tentative">Tentative</div>
+                                       <div class="menu" id="categoryMenu">
                                        </div>
                                      </div>
                                    </div>
 
-
-
-                                <!-- <div class="field required">
-                                  <lable>Categories</label>
-                                  <div class="ui selection multiple dropdown" id="categoryDropdown">
-                                    <input type="hidden" id="categoryInput">
-                                    <div class="default text">Categorys of the event</div>
-                                    <i class="dropdown icon"></i>
-                                    <div class="menu" id="categoryMenu"></div>
-                                  </div>
-                                </div> -->
+                                   <div class="field">
+                                     <label>Notes</label>
+                                     <textarea placeholder="Jot something down" rows="1" maxlength="2000" id="extraInput"></textarea>
+                                   </div>
 
                                 <div class="field">
-                                  <label>Categories</label>
-                                  <div class="ui fluid multiple selection dropdown" id="categoryDropdown">
-                                    <input type="hidden" id="categoryInput">
-                                    <div class="default text">Categories of the event</div>
-                                    <i class="dropdown icon"></i>
-                                    <div class="menu" id="categoryMenu">
-                                    </div>
-                                  </div>
-                                </div>
+                                  <label>Image</label>
+                                  <div class="ui segment" id="imageSegment">
+                                    <div class="ui two column stackable center aligned grid">
+                                      <div class="ui vertical divider"></div>
 
-                                <div class="field">
-                                  <label>Notes</label>
-                                  <input placeholder="Jot something down" name="extra" maxlength="500" type="text" id="extraInput" value="">
-                                </div>
+                                      <div class="column middle aligned">
+
+                                        <div class="field" id="imageInputField" data-content="Please select an image smaller than 500kb">
+                                          <input type="file" id="imageInput" multiple style='display: none;'/>
+                                          <label id="imageLabel" for="imageInput">Select image</label>
+                                        </div>
 
 
-                                   <div class="ui segment">
-                                     <div class="two fields">
-                                       <div class="ui items ">
-                                         <div class="ui item">
+                                        <div class="ui checkbox field" id="imageCheckboxField">
+                                          <a id="imageDeleteButton">delete image</a>
+                                        </div>
+                                      </div>
 
-                                           <div class="field" id="imageInputField" data-content="Please select an image smaller than 500kb">
-                                             <!-- <label>Image</label> -->
-                                             <!-- <input name="image" type="file" id="imageInput" placeholder="test"> -->
-                                             <input type="file" id="imageInput" multiple style='display: none;'/>
-                                             <!-- <div class="ui button" for="imageInput" data-variation="mini" >Upload image</div>
-                                           multiple style='display: none;'-->
+                                      <div class="column middle aligned">
 
-                                             <label id="imageLabel" for="imageInput">select image</label>
-                                           </div>
-                                         </div>
-
-                                         <div class="ui item">
-
-                                           <div class="ui checkbox" id="imageCheckboxField">
-                                             <input name="imageCheckbox" type="checkbox" id="imageCheckbox">
-                                             <label>Remove image</label>
-                                           </div>
-
-                                           <div class="ui primary submit button" data-content="Please fill out the marked fields correctly"
-                                           data-variation="" id="submitButton">Submit</div>
-
-                                         </div>
-
-                                       </div>
-
-
-
-                                      <div class="field">
-                                        <div class="ui items ">
-                                          <div class="ui item">
-
-                                            <img id="previewImage" height="75" width="75" src="#" alt="" />
-                                          </div>
-
-                                          <div class="ui item">
-                                            <div class="ui checkbox" id="alldayField">
-                                              <input name="allday" type="checkbox" id="alldayInput">
-                                              <label>Allday</label>
-
-                                            </div>
-
-                                          </div>
+                                        <div class="field">
+                                          <img class="ui right floated spaced tiny image" id="previewImage" src="#" alt=""/>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
+                                </div>
 
 
+                              <div class="ui segment">
+                                <div class="ui two column stackable center aligned grid">
+                                  <div class="ui vertical divider"></div>
+                                  <div class="column">
+                                    <div class="ui primary submit button centered" data-content="Please fill out the marked fields correctly"
+                                    data-variation="" id="submitButton">Submit</div>
 
+                                  </div>
+                                  <div class="column middle aligned">
+                                    <div class="ui checkbox" id="alldayField">
+                                      <input name="allday" type="checkbox" id="alldayInput">
+                                      <label>Allday</label>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
 
-                              </form>
+                            </form>
+                          </div>
 
-
-
-
-                    </div>
                     <div class="pusher">
                       <!-- Site content !-->
 
