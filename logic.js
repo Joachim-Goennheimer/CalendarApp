@@ -1,6 +1,5 @@
 var today = new Date();
 // getMonth() function starts counting from zero
-
 var currentMonth = today.getMonth();
 var currentYear = today.getFullYear();
 var currentDate = today.getDate();
@@ -31,6 +30,7 @@ var thursdayDateSpan = $("#thursdayDateSpan");
 var fridayDateSpan = $("#fridayDateSpan");
 var saturdayDateSpan = $("#saturdayDateSpan");
 var weekViewButton = $("#weekView");
+var listAllEvents = $("#listAllEvents");
 
 
 // input Form listeners
@@ -60,6 +60,27 @@ var categoryNameInput = $("#categoryNameInput");
 var deleteCategoryModal = $("#deleteCategoryModal");
 var confirmDeleteCategoryButton = $("#confirmDeleteCategoryButton");
 
+// list all events modal
+var listEventsStartTime = $("#listEventsStartTime");
+var listEventsEndTime = $("#listEventsEndTime");
+var listEventsTitle = $("#listEventsTitle");
+var listEventsLocation = $("#listEventsLocation");
+var listEventsDetails = $("#listEventsDetails");
+
+// display selected event modal listeners
+var displaySelectedEventModal = $("#displaySelectedEventModal");
+var displaySelectedEventTitle = $("#displaySelectedEventTitle");
+var displaySelectedEventStartTime = $("#displaySelectedEventStartTime");
+var displaySelectedEventEndTime = $("#displaySelectedEventEndTime");
+var displaySelectedEventLocation = $("#displaySelectedEventLocation");
+var displaySelectedEventOrganizer = $("#displaySelectedEventOrganizer");
+var displaySelectedEventWebsite = $("#displaySelectedEventWebsite");
+var displaySelectedEventStatus = $("#displaySelectedEventStatus");
+var displaySelectedEventCategories = $("#displaySelectedEventCategories");
+var displaySelectedEventNotes = $("#displaySelectedEventNotes");
+var displaySelectedEventImage = $("#displaySelectedEventImage");
+
+// delete event modal
 var deleteEventModal = $("#deleteEventModal");
 var confirmDeleteEventButton = $("#confirmDeleteEventButton");
 
@@ -69,11 +90,15 @@ var allCategories = [];
 var hideCategories = [];
 
 // boolean that tracks whether program is in month or in week view.
-// Necessary for next, previous buttons to work properly
+// Necessary for next, previous buttons to work properly.
 var inMonthView = true;
+
+// boolean that tracks whether program is in edit mode or not.
+// Necessary for post form to decide whether post or put request should be send.
 var editMode = false;
 var editID;
 
+// holds the data of all events.
 var eventData;
 
 $(document).ready(function(){
@@ -84,23 +109,12 @@ $(document).ready(function(){
 
     loadData();
 
-
-    createNewEntryButton.click(function(){
-        $('.ui.sidebar').sidebar('toggle');
-
-        refreshFormInput();
-
-    });
-
-
-
     calendarBasicLayoutListeners();
     postFormListeners();
     postCategory();
 })
 
 // *************************************************************************************************
-
 // Loading Data
 
 function loadData(){
@@ -120,18 +134,17 @@ function loadData(){
 
 
     }).catch(function(message){
-        console.log("Error loading data");
+        console.log(message);
     })
 
 }
 
 
 function loadEventData(){
-    console.log("loading events");
 
     return new Promise(function(resolve, reject){
 
-        $.get("https://dhbw.cheekbyte.de/calendar/500/events", function(data){
+        $.get("https://dhbw.cheekbyte.de/calendar/34069995483613/events", function(data){
         eventData = data;
         resolve("success");
         reject("loading error");
@@ -141,10 +154,10 @@ function loadEventData(){
 }
 
 function loadCategoryData(){
-    console.log("loading categories");
+
     return new Promise(function(resolve, reject){
 
-        $.get("https://dhbw.cheekbyte.de/calendar/500/categories", function(data){
+        $.get("https://dhbw.cheekbyte.de/calendar/34069995483613/categories", function(data){
         allCategories = data;
         resolve("success");
         reject("loading error");
@@ -173,18 +186,21 @@ function displayYearMonthDate(date, month, year){
     monthDisplay.text(months[month]);
 }
 
+// function that loads the table for the month view. This layout will automatically be displayed when the page loads or when the
+// user clicks on the month view button.
 function displayMonthView(month, year){
+
+    var tableContent = "";
+    var daysInMonth = calculateDaysInMonth(month, year);
+    var currentDateID;
+    var startDay = (new Date(year, month)).getDay();
+    var columnIDs = [];
 
     timeHeader.hide();
     hideDateSpans();
 
     calendarBody.empty();
-    var tableContent = "";
-    var daysInMonth = calculateDaysInMonth(month, year);
-    var currentDateID;
-    let startDay = (new Date(year, month)).getDay();
-    var columnIDs = [];
-
+    
     dateCounter = 1;
     for(i = 0; i < 6; i++){
 
@@ -202,7 +218,6 @@ function displayMonthView(month, year){
             else if(dateCounter <= daysInMonth){
                 // adding id to column
                 var columnID = calculateIDMonthView(year, month, dateCounter);
-                // console.log("columnID: " + columnID);
                 column = "<td id='" + columnID + "' class='dayCellMonthView'>";
                 column = column + "<h1 class='createNewEventsArea' id='createNew" + columnID + "'>" + dateCounter + "</h1>";
                 columnIDs.push(columnID);
@@ -223,16 +238,112 @@ function displayMonthView(month, year){
 
     calendarBody.append(tableContent);
 
-    // mark current date
-
+    // markes current date
     currentDateID = calculateIDMonthView(currentYear, currentMonth, currentDate);
 
     $("#" + currentDateID).addClass("currentDateStyle");
     addClickListenersMonthView(columnIDs, year, month);
 }
 
-function addClickListenersMonthView(columnIDs){
+// function that loads all the events in the month that is currently displayed to the user. This method will always be called when
+// the user switches the month, starts month view, reloads the page, or adds a new event or category.
+function displayEventsMonthView(){
 
+    var eventStartString;
+    var eventEndString
+
+    var eventStartYear;
+    var eventEndYear;
+    var eventStartMonth;
+    var eventEndMonth;
+    var eventStartDate;
+    var eventEndDate;
+
+    var eventDateIDS;
+    var eventDIV;
+
+    var hideEvent;
+
+    eventData.forEach(function(event){
+
+        hideEvent = true;
+
+        // checks whether the user has switched off all the categories that are attributed to the event. In that case the event
+        // will not be displayed to the user.
+        if(event.categories.length > 0){
+            event.categories.forEach(function(category){
+
+                if(!hideCategories.includes(category.id)){
+                    hideEvent = false;
+                }
+            })
+        }
+        else{
+            hideEvent = false;
+        }
+
+        eventStartString = event.start;
+        eventEndString = event.end;
+
+        eventStartYear = eventStartString.slice(0, 4);
+        eventEndYear = eventEndString.slice(0, 4);
+        eventStartMonth = eventStartString.slice(5, 7);
+        eventEndMonth = eventEndString.slice(5, 7);
+
+        // because currentMonth is only one digit if below 10
+        if(eventStartMonth.slice(0, 1) === "0"){
+            eventStartMonth = "" + eventStartMonth.slice(1);
+        }
+        if(eventEndMonth.slice(0,1) === "0"){
+            eventEndMonth = "" + eventEndMonth.slice(1);
+        }
+
+        eventStartDate = eventStartString.slice(8, 10);
+        eventEndDate = eventEndString.slice(8, 10);
+
+        eventStartYear = parseInt(eventStartYear);
+        eventEndYear = parseInt(eventEndYear);
+        eventStartMonth = parseInt(eventStartMonth) -1;
+        eventEndMonth = parseInt(eventEndMonth) -1;
+        eventStartDate = parseInt(eventStartDate);
+        eventEndDate = parseInt(eventEndDate);
+
+        // cell cleared first because event might already be displayed
+        var formerEventDiv = $("." + event.id);
+        formerEventDiv.remove();
+
+        eventDateIDS = calculateIDSMonthView(eventStartYear, eventEndYear, eventStartMonth, eventEndMonth, eventStartDate, eventEndDate);
+
+        eventDateIDS.forEach(function(eventDateID){
+
+                eventDIV = generateEventDIV(event, hideEvent);
+                var eventDateCell = $("#" + eventDateID);
+
+                eventDateCell.append(eventDIV);
+                $(".deleteSpan" + event.id).on("click", function(){
+    
+                    deleteEventModal.modal({
+                        onApprove : function(){
+                            $("." + event.id).remove();
+                            deleteEvent(event.id);
+                        }
+    
+                    }).modal("show");
+    
+                })
+                $(".displaySelectedEvent" + event.id).on("click", function(){
+                    displaySelectedEventView(event)
+                })    
+
+        })
+
+        
+    })
+
+}
+
+// adds the listener to the cells for creating a new event at the corresponding date.
+function addClickListenersMonthView(columnIDs){
 
     columnIDs.forEach(function(columnID){
 
@@ -258,7 +369,6 @@ function addClickListenersMonthView(columnIDs){
 
             $('.ui.sidebar').sidebar('toggle');
             refreshFormInput();
-            // console.log();
             startDate.val(result);
             endDate.val(result);
 
@@ -266,306 +376,22 @@ function addClickListenersMonthView(columnIDs){
     })
 }
 
-function displayEventsMonthView(){
-
-    var eventStartString;
-
-    var eventYear;
-    var eventMonth;
-    var eventDate;
-
-    var eventDateID;
-    var eventDIV;
-
-    var hideEvent;
-
-
-    // console.log("hideCategories: " + hideCategories)
-
-    eventData.forEach(function(event){
-
-        hideEvent = true;
-        // check whether all of the events categories are in the hideCategoryArray
-
-        // console.log("Event: " + event.title + " has categories: ");
-
-        if(event.categories.length > 0){
-            event.categories.forEach(function(category){
-
-                // console.log(category.id);
-                // console.log("**********************");
-
-                if(!hideCategories.includes(category.id)){
-                    // console.log("hideEvent set to false");
-                    hideEvent = false;
-                }
-            })
-        }
-        else{
-            hideEvent = false;
-        }
-
-        eventStartString = event.start;
-
-        eventYear = eventStartString.slice(0, 4);
-        eventMonth = eventStartString.slice(5, 7);
-
-        // because currentMonth is only one digit if below 10
-        if(eventMonth.slice(0, 1) === "0"){
-            eventMonth = "" + eventMonth.slice(1);
-        }
-
-        eventDate = eventStartString.slice(8, 10);
-
-        eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth) -1;
-        eventDate = parseInt(eventDate);
-
-        // if(eventYear === currentYear && eventMonth === currentMonth){
-
-            eventDateID = calculateIDMonthView(eventYear, eventMonth, eventDate);
-            eventDIV = generateEventDIV(event, hideEvent);
-            var eventDateCell = $("#" + eventDateID);
-
-        // cell cleared first because event might already be displayed
-
-            var formerEventDiv = $("#" + event.id);
-            formerEventDiv.remove();
-
-            // eventDateCell.empty();
-            eventDateCell.append(eventDIV);
-            $("#deleteSpan" + event.id).on("click", function(){
-
-                deleteEventModal.modal({
-                    onApprove : function(){
-                        $("#" + event.id).remove();
-                        deleteEvent(event.id);
-                    }
-
-                }).modal("show");
-
-            })
-            $("#editEvent" + event.id).on("click", function(){
-                editEvent(event);
-            })
-
-        // }
-
-
-    })
-
-}
-
-function displayEventsWeekView(){
-    var eventStartString;
-
-    var eventYear;
-    var eventMonth;
-    var eventDate;
-
-    var eventDateID;
-    var eventDIV;
-
-    var hideEvent;
-
-    eventData.forEach(function(event){
-
-        hideEvent = true;
-        // check whether all of the events categories are in the hideCategoryArray
-
-        console.log("Event: " + event.title + " has categories: ");
-
-        if(event.categories.length > 0){
-            event.categories.forEach(function(category){
-
-                console.log(category.id);
-                console.log("**********************");
-
-                if(!hideCategories.includes(category.id)){
-                    console.log("hideEvent set to false");
-                    hideEvent = false;
-                }
-            })
-        }
-        else{
-            hideEvent = false;
-        }
-
-        eventStartString = event.start;
-
-        eventYear = eventStartString.slice(0, 4);
-        eventMonth = eventStartString.slice(5, 7);
-        eventDate = eventStartString.slice(8, 10);
-        eventHour = eventStartString.slice(11, 13);
-        eventMinutes = eventStartString.slice(15, 17);
-
-        // because currentMonth is only one digit if below 10
-        if(eventMonth.slice(0, 1) === "0"){
-            eventMonth = "" + eventMonth.slice(1);
-        }
-
-
-        eventYear = parseInt(eventYear);
-        eventMonth = parseInt(eventMonth) -1;
-        eventDate = parseInt(eventDate);
-        eventHour = parseInt(eventHour);
-        eventMinutes = parseInt(eventMinutes);
-
-            eventDateID = calculateIDWeekView(eventYear, eventMonth, eventDate, eventHour, eventMinutes);
-
-            eventDIV = generateEventDIV(event, hideEvent);
-
-            var eventDateCell = $("#" + eventDateID);
-
-            var formerEventDiv = $("#" + event.id);
-            formerEventDiv.remove();
-            console.log("appending: " + eventDIV + " to " + eventDateCell);
-
-            eventDateCell.append(eventDIV);
-
-            $("#deleteSpan" + event.id).on("click", function(){
-
-                deleteEventModal.modal({
-                    onApprove : function(){
-                        $("#" + event.id).remove();
-                        deleteEvent(event.id);
-                    }
-
-                }).modal("show");
-
-            })
-            $("#editEvent" + event.id).on("click", function(){
-                editEvent(event);
-            })
-
-    })
-
-}
-
-function nextYear(){
-    currentYear++;
-}
-
-function previousYear(){
-    currentYear--;
-}
-
-function nextMonth(){
-    var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // calculates the date of the next saturday
-    var lastDateOfWeek = currentDate - currentDay + 6;
-    // console.log("*******************************************");
-    // console.log("currentDate: " + currentDate);
-    // console.log("currentDay: " + currentDay);
-    // console.log("lastDateOfWeek: " + lastDateOfWeek);
-
-    // if the last saturday has a higher date than possible the lastDateOfWeek is not on a saturday which means that the month ends prior in the week
-    if(lastDateOfWeek > daysInMonth){
-        lastDateOfWeek = daysInMonth;
-        // console.log("IN IF - lastDateOfWeek: " + lastDateOfWeek);
-    }
-    // calculates the days that are left in the month
-    var daysLeftInMonth = daysInMonth - currentDate;
-    // console.log("daysLeftInMonth: " + daysLeftInMonth);
-    if(currentMonth === 11){
-        currentYear++;
-        currentMonth = 0;
-        currentDate = 7 - (daysLeftInMonth % 7);
-        // console.log("currentDate: " + currentDate);
-    }
-    else{
-        currentMonth++;
-        // calculates the new current date displayed. It will always be the same day of the week as in the month before.
-        currentDate = 7 - (daysLeftInMonth % 7);
-        // console.log("currentDate: " + currentDate);
-    }
-
-}
-
-function nextWeek(){
-
-    var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // console.log("*******************************************");
-    // console.log("daysInMonth: " + daysInMonth);
-    var lastDateOfWeek = currentDate - currentDay + 6;
-    if(lastDateOfWeek > daysInMonth){
-        lastDateOfWeek = daysInMonth;
-    }
-    // console.log("lastDateOfWeek: " + lastDateOfWeek);
-
-    var daysLeftInMonth = daysInMonth - currentDate;
-    // console.log("daysLeftInMonth: " + daysLeftInMonth);
-
-    if(daysLeftInMonth < 7){
-        if(currentMonth === 11){
-            currentYear++;
-            currentMonth = 0;
-        }
-        else{
-            currentMonth++;
-        }
-        currentDate = 7 - daysLeftInMonth;
-        // console.log("Current Date: " + currentDate);
-    }
-    else{
-        currentDate += 7;
-    }
-
-}
-
-function previousMonth(){
-    daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
-    // console.log("#############################################");
-    // console.log("daysInPrevMonth: " + daysInPrevMonth);
-    if(currentMonth === 0){
-        currentYear--;
-        currentMonth = 11;
-    }
-    else{
-        currentMonth--;
-    }
-    // console.log("currenMonth: " + currentMonth);
-    currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
-    // console.log("currentDate: " + currentDate);
-
-}
-
-function previousWeek(){
-    var daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
-    // var daysInPrevMonth;
-    if(currentDate <= 7){
-        if(currentMonth === 0){
-            currentYear--;
-            currentMonth = 11;
-        }
-        else{
-            currentMonth--;
-        }
-
-        currentDate = daysInPrevMonth - (7 - currentDate);
-    }
-    else{
-        currentDate -= 7;
-    }
-
-}
-
+// function that loads the table for the week view. This layout will automatically be displayed when the user clicks on the week view
+// button.
 function displayWeekView(minutes, hour, day, date, month, year){
 
     inMonthView = false;
 
-    timeTracker = new Date();
-    timeTracker.setHours(00);
-    timeTracker.setMinutes(00);
+    var timeTracker = new Date();
+    var tableContent = "";
+    var nightStyleClass = "";
+    var columnIDs = [];
 
-    // console.log("hours: " + hours);
-    // console.log("minutes: " + minutes);
+    timeTracker.setHours(07);
+    timeTracker.setMinutes(00);
 
     timeHeader.show();
     calendarBody.empty();
-
-    var tableContent = "";
-    var columnIDs = [];
 
     displayDateSpans(day, date);
 
@@ -574,6 +400,12 @@ function displayWeekView(minutes, hour, day, date, month, year){
         hours = timeTracker.getHours();
         minutes = timeTracker.getMinutes();
         if(hours < 10){
+            if(hours <7){
+                nightStyleClass = "nightStyle";
+            }
+            else{
+                nightStyleClass = "";
+            }
             hoursString = "0" + hours;
         }
         else{
@@ -600,8 +432,7 @@ function displayWeekView(minutes, hour, day, date, month, year){
         for(j = 0; j < 7; j++){
 
             var columnID = setIDWeekView(j, day, date, hoursString, minutesString);
-            // console.log("dateID: " + columnID);
-            var column = "<td id='" + columnID + "'>";
+            var column = "<td class='" + nightStyleClass + "' id='" + columnID + "'>";
             column += "<h1 class='createNewEventsArea' id='createNewEventsArea" + columnID + "'></h1>"
             column = column + "</td>";
 
@@ -620,6 +451,107 @@ function displayWeekView(minutes, hour, day, date, month, year){
 
 }
 
+// function that loads all the events in the week that is currently displayed to the user. This method will always be called when
+// the user switches the week, starts week view, reloads the page, or adds a new event or category.
+function displayEventsWeekView(){
+
+    var eventStartString;
+    var eventStartYear;
+    var eventStartMonth;
+    var eventStartDate;
+    var eventEndDate;
+    var eventStartHour;
+    var eventEndHour;
+    var eventStartMinutes;
+    var eventEndMinutes;
+
+    var eventDateIDS;
+    var eventDIV;
+
+    var hideEvent;
+
+    eventData.forEach(function(event){
+
+        hideEvent = true;
+        
+        // checks whether the user has switched off all the categories that are attributed to the event. In that case the event
+        // will not be displayed to the user.
+        if(event.categories.length > 0){
+            event.categories.forEach(function(category){
+
+                if(!hideCategories.includes(category.id)){
+                    hideEvent = false;
+                }
+            })
+        }
+        else{
+            hideEvent = false;
+        }
+
+        eventStartString = event.start;
+        eventEndString = event.end;
+
+        eventStartYear = eventStartString.slice(0, 4);
+        eventStartMonth = eventStartString.slice(5, 7);
+        eventStartDate = eventStartString.slice(8, 10);
+        eventEndDate = eventEndString.slice(8, 10);
+        eventStartHour = eventStartString.slice(11, 13);
+        eventEndHour = eventEndString.slice(11, 13);
+        eventStartMinutes = eventStartString.slice(14, 17);
+        eventEndMinutes = eventEndString.slice(14, 17);
+
+        // because currentMonth is only one digit if below 10
+        if(eventStartMonth.slice(0, 1) === "0"){
+            eventStartMonth = "" + eventStartMonth.slice(1);
+        }
+
+
+        eventStartYear = parseInt(eventStartYear);
+        eventStartMonth = parseInt(eventStartMonth) -1;
+        eventStartDate = parseInt(eventStartDate);
+        eventEndDate = parseInt(eventEndDate);
+        eventStartHour = parseInt(eventStartHour);
+        eventEndHour = parseInt(eventEndHour);
+        eventStartMinutes = parseInt(eventStartMinutes);
+        eventEndMinutes = parseInt(eventEndMinutes);
+
+        var formerEventDiv = $("." + event.id);
+        formerEventDiv.remove();
+
+        eventDateIDS = calculateIDSWeekView(eventStartYear, eventStartMonth, eventStartDate, eventEndDate, eventStartHour, eventEndHour, eventStartMinutes, eventEndMinutes);
+
+        eventDateIDS.forEach(function(eventDateID){
+
+            eventDIV = generateEventDIV(event, hideEvent);
+
+            var eventDateCell = $("#" + eventDateID);
+
+            eventDateCell.append(eventDIV);
+
+            $(".deleteSpan" + event.id).on("click", function(){
+
+                deleteEventModal.modal({
+                    onApprove : function(){
+                        $("." + event.id).remove();
+                        deleteEvent(event.id);
+                    }
+
+                }).modal("show");
+
+            })
+            $(".displaySelectedEvent" + event.id).on("click", function(){
+                displaySelectedEventView(event);
+            })
+
+
+        })
+            
+
+    })
+
+}
+
+// adds the listener to the cells for creating a new event at the corresponding date.
 function addClickListenersWeekView(columnIDs){
 
     var date;
@@ -627,16 +559,12 @@ function addClickListenersWeekView(columnIDs){
     var splitIndex;
     columnIDs.forEach(function(columnID){
 
-
-
         $("#createNewEventsArea" + columnID).on("click", function(){
 
             splitIndex = columnID.indexOf("T");
             date = columnID.substring(0, splitIndex);
             time = columnID.substring(splitIndex+1);
             time = time.substring(0, 2) + ":" + time.substring(2, 4);
-            console.log("date: " + date);
-            console.log("time: " + time);
 
             var inputString = date;
             var regEx1 = /-(\d)-/;
@@ -657,7 +585,6 @@ function addClickListenersWeekView(columnIDs){
             $('.ui.sidebar').sidebar('toggle');
             refreshFormInput();
 
-            console.log(columnID);
             startDate.val(result);
             endDate.val(result);
             startTimeInput.val(time);
@@ -666,14 +593,102 @@ function addClickListenersWeekView(columnIDs){
 
 }
 
+function nextYear(){
+    currentYear++;
+}
+
+function previousYear(){
+    currentYear--;
+}
+
+function nextMonth(){
+    var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
+    // calculates the date of the next saturday
+    var lastDateOfWeek = currentDate - currentDay + 6;
+
+    // if the last saturday has a higher date than possible the lastDateOfWeek is not on a saturday which means that the month ends prior in the week
+    if(lastDateOfWeek > daysInMonth){
+        lastDateOfWeek = daysInMonth;
+    }
+    // calculates the days that are left in the month
+    var daysLeftInMonth = daysInMonth - currentDate;
+    if(currentMonth === 11){
+        currentYear++;
+        currentMonth = 0;
+        currentDate = 7 - (daysLeftInMonth % 7);
+    }
+    else{
+        currentMonth++;
+        // calculates the new current date displayed. It will always be the same day of the week as in the month before.
+        currentDate = 7 - (daysLeftInMonth % 7);
+    }
+}
+
+function previousMonth(){
+    daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
+    if(currentMonth === 0){
+        currentYear--;
+        currentMonth = 11;
+    }
+    else{
+        currentMonth--;
+    }
+    currentDate = daysInPrevMonth - ( 7 - (currentDate % 7) );
+
+}
+
+function nextWeek(){
+
+    var daysInMonth = calculateDaysInMonth(currentMonth, currentYear);
+    var lastDateOfWeek = currentDate - currentDay + 6;
+    if(lastDateOfWeek > daysInMonth){
+        lastDateOfWeek = daysInMonth;
+    }
+
+    var daysLeftInMonth = daysInMonth - currentDate;
+
+    if(daysLeftInMonth < 7){
+        if(currentMonth === 11){
+            currentYear++;
+            currentMonth = 0;
+        }
+        else{
+            currentMonth++;
+        }
+        currentDate = 7 - daysLeftInMonth;
+    }
+    else{
+        currentDate += 7;
+    }
+
+}
+
+function previousWeek(){
+    var daysInPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear)
+    if(currentDate <= 7){
+        if(currentMonth === 0){
+            currentYear--;
+            currentMonth = 11;
+        }
+        else{
+            currentMonth--;
+        }
+
+        currentDate = daysInPrevMonth - (7 - currentDate);
+    }
+    else{
+        currentDate -= 7;
+    }
+
+}
+
 function displayDateSpans(day, date){
 
     var daysinPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear);
     var daysInCurrentMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // console.log(date-day);
     var weekDates = [];
 
-    dateNamingCounter = date-day;
+    var dateNamingCounter = date-day;
     // displays dates that were part of the last month
     while(dateNamingCounter < 1){
         weekDates.push(daysinPrevMonth + dateNamingCounter);
@@ -698,19 +713,48 @@ function displayDateSpans(day, date){
     saturdayDateSpan.text(weekDates[6]);
 }
 
+// calculates and returns the IDs of cells in month view. Used to map the events to the correct cells.
 function calculateIDMonthView(year, month, date){
-    return "" + year + "-" + month + "-" + date;
 
+    return "" + year + "-" + month + "-" + date;
 }
+
+// calculates all the cell-IDs to which a particular event needs to be mapped. As an event can go over several days it is possible
+// that more than one cell has to display the event. Does not yet take into account when an event goes over several months or years.
+function calculateIDSMonthView(startYear, endYear, startMonth, endMonth, startDate, endDate){
+
+    var eventIDS = [];
+    var daysInStartMonth = calculateDaysInMonth(startMonth, startYear);
+
+    while(startYear <= endYear){
+
+        while((startMonth <= endMonth || startYear < endYear) && startMonth <= 11){
+
+            while((startDate <= endDate || startMonth < endMonth || startYear < endYear) && startDate <= daysInStartMonth){
+                eventIDS.push(calculateIDMonthView(startYear, startMonth, startDate));
+                startDate++
+            }
+            startDate = 1;
+            startMonth++;
+            // needs to be updated for every month
+            daysInStartMonth = calculateDaysInMonth(startMonth, startYear);
+        }
+        startMonth = 0;
+        startYear++;
+        daysInStartMonth = calculateDaysInMonth(startMonth, startYear);
+    }
+
+    return eventIDS;
+}
+
 // function that sets the ids in the current week View displayed to the user
 function setIDWeekView(dayToCalculate, day, date, hour, minutes){
 
     var daysinPrevMonth = calculateDaysPrevMonth(currentMonth, currentYear);
     var daysInCurrentMonth = calculateDaysInMonth(currentMonth, currentYear);
-    // console.log(date-day);
     var weekDates = [];
 
-    dateNamingCounter = date-day;
+    var dateNamingCounter = date-day;
     // displays dates that were part of the last month
     while(dateNamingCounter < 1){
         weekDates.push(daysinPrevMonth + dateNamingCounter);
@@ -731,7 +775,7 @@ function setIDWeekView(dayToCalculate, day, date, hour, minutes){
 
 }
 
-// function that calculates the id for a certain event in order to check whether that id is currently displayed to the user
+// calculates and returns the IDs of cells in week view. Used to map the events to the correct cells.
 function calculateIDWeekView(year, month, date, hour, minutes){
 
     if(hour < 10){
@@ -747,6 +791,30 @@ function calculateIDWeekView(year, month, date, hour, minutes){
 
     return "" + year + "-" + month + "-" + date + "T" + hour + minutes;
 
+}
+
+// calculates all the cell-IDs to which a particular event needs to be mapped. As an event can go over several hours it is possible
+// that more than one cell has to display the event. Does not yet take into account when an event goes over several months or years.
+function calculateIDSWeekView(year, month, startDate, endDate, startHour, endHour, startMinutes, endMinutes){
+
+    var eventIDS = [];
+
+    while(startDate <= endDate){
+
+        while((startHour <= endHour || startDate < endDate) && startHour <= 23){
+
+            while((startMinutes < endMinutes || startHour < endHour || startDate < endDate) && startMinutes <= 59){
+                eventIDS.push(calculateIDWeekView(year, month, startDate, startHour, startMinutes));
+                startMinutes += 30;
+            }
+            startMinutes = 0;
+            startHour++;
+        }
+        startHour = 0;
+        startDate++;
+    }
+
+    return eventIDS;
 }
 
 function hideDateSpans(){
@@ -805,6 +873,13 @@ function calendarBasicLayoutListeners(){
         }
     });
 
+    createNewEntryButton.click(function(){
+        $('.ui.sidebar').sidebar('toggle');
+
+        refreshFormInput();
+
+    });
+
     weekViewButton.click(function(){
         if(inMonthView){
             inMonthView = false;
@@ -820,6 +895,73 @@ function calendarBasicLayoutListeners(){
 
         }
     })
+
+    listAllEvents.click(function(){
+
+        var startDate;
+        var startMonth;
+        var startYear;
+        var startHour;
+        var startMinutes;
+
+        var endDate;
+        var endMonth;
+        var endYear;
+        var endHour;
+        var endMinutes;
+
+        var eventStartString;
+        var timeStartString
+        var eventEndString;
+        var categorySpan;
+
+        listEventsStartTime.empty();
+        listEventsEndTime.empty();
+        listEventsTitle.empty();
+        listEventsLocation.empty();
+        listEventsDetails.empty();
+
+        eventData.forEach(function(event){
+            
+            listEventsTitle.append("<p>" + event.title + "</p>");
+
+            startDate = event.start.substring(8, 10);
+            startMonth = event.start.substring(5, 7);
+            startYear = event.start.substring(0, 4);
+
+            startHour = event.start.substring(11, 13);
+            startMinutes = event.start.substring(14);
+            timeStartString = "<span class='displaySelectedEventTimeSpan'>" + startHour + ":" + startMinutes + "</span>";
+
+            eventStartString = startDate + "." + startMonth + "." + startYear;
+
+            endDate = event.end.substring(8, 10);
+            endMonth = event.end.substring(5, 7);
+            endYear = event.end.substring(0, 4);
+
+            endHour = event.end.substring(11, 13);
+            endMinutes = event.end.substring(14);
+            timeEndString = "<span class='displaySelectedEventTimeSpan'>" + endHour + ":" + endMinutes + "</span>";
+
+            eventEndString = endDate + "." + endMonth + "." + endYear;
+
+            listEventsStartTime.append("<p>" + eventStartString + "</p>");
+            listEventsEndTime.append("<p>" + eventEndString + "</p>");
+            listEventsLocation.append("<p>" + event.location + "</p>");
+            listEventsDetails.append("<p id='displayDetails" + event.id + "'>Show Details</p>")
+            
+            $("#displayDetails" + event.id).on("click", function(){
+                displaySelectedEventView(event);
+            })
+
+        })
+
+        $('#listAllEventsModal').modal({
+            inverted: false
+        })
+        .modal('show');
+
+    })
 }
 
 function generateEventDIV(event, hideEvent){
@@ -828,11 +970,11 @@ function generateEventDIV(event, hideEvent){
     var htmlString;
     if(!hideEvent){
 
-        deleteSpan = '<span id="deleteSpan' + event.id + '"><i class="trash alternate icon"></i></span>';
-        htmlString = '<div id="' + event.id + '">';
+        deleteSpan = '<span class="deleteSpan' + event.id + '"><i class="trash alternate icon"></i></span>';
+        htmlString = '<div class="' + event.id + '">';
         // htmlString += '<h3>' + eventDate + '</h3>';
         htmlString += deleteSpan;
-        htmlString += '<p id="editEvent' + event.id + '">' + event.title + '</p>';
+        htmlString += '<p class="displaySelectedEvent' + event.id + '">' + event.title + '</p>';
 
         htmlString += '</div>';
     }
@@ -880,8 +1022,6 @@ function arrayRemove(arr, value) {
 // Categories: Create and Delete and Display
 
 function displayCategories(){
-    // console.log("displayCategories()")
-    // console.log("selectedCategories:" + selectedCategories);
 
     var categoryItem;
     allCategoriesDisplay.empty();
@@ -915,7 +1055,6 @@ function displayCategories(){
             }
         })
         // click listener for deleting a category
-
         $("#deleteSpan" + category.id).bind("click", function(){
             deleteCategoryModal.modal({
                 onApprove : function(){
@@ -936,20 +1075,18 @@ function postCategory(){
         var formData = JSON.stringify(postData);
         $.ajax({
             type: "POST",
-            url: "https://dhbw.cheekbyte.de/calendar/500/categories",
+            url: "https://dhbw.cheekbyte.de/calendar/34069995483613/categories",
             data: formData,
             success: function(){
-                console.log("Successfully posted category");
+                // console.log("Successfully posted category");
             },
             dataType: "json",
             contentType : "application/json"
           }).done(function(response){
               allCategories = [];
-              console.log(response);
               loadData();
 
           })
-
 
     })
 }
@@ -957,15 +1094,14 @@ function postCategory(){
 function deleteCategory(categoryID){
 
     Promise.all(deleteCategoryFromEvents(categoryID)).then(function(){
-        console.log("promises resolved");
+
         $.ajax({
             type: "DELETE",
-            url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID,
+            url: "https://dhbw.cheekbyte.de/calendar/34069995483613/categories/" + categoryID,
             success: function(){
-                console.log("Successfully deleted category");
+                // console.log("Successfully deleted category");
             },
           }).done(function(response){
-              console.log(response);
               loadData();
           })
       });
@@ -974,59 +1110,33 @@ function deleteCategory(categoryID){
 
 }
 
+// deletes a category from all events that are attributed to the category.
 function deleteCategoryFromEvents(categoryID){
 
-//     var promises = [];
-
-//     array.forEach(function(element) {
-//         promises.push(
-//             developer.getResources(element)
-//                 .then((data) = > {
-//                     name = data.items[0];
-//                     return developer.getResourceContent(element, file);
-//                 })
-//                 .then((response) = > {
-//                     fileContent = atob(response.content);
-//                     self.files.push({
-//                         fileName: fileName,
-//                         fileType: fileType,
-//                         content: fileContent
-//                     });
-//                 }).catch ((error) = > {
-//                     console.log('Error: ', error);
-//                 })
-//         );
-//     });
-
-// Promise.all(promises).then(() =>
-//     self.resultingFunction(self.files)
-// );
-
-
-var promises = [];
+    var promises = [];
 
     eventData.forEach(function(event){
         if(eventContainsCategory(event, categoryID)){
             promises.push(
                 $.ajax({
                     type: "DELETE",
-                    url: "https://dhbw.cheekbyte.de/calendar/500/categories/" + categoryID + "/" + event.id,
+                    url: "https://dhbw.cheekbyte.de/calendar/34069995483613/categories/" + categoryID + "/" + event.id,
                     success: function(){
-                        console.log("Successfully deleted category from event: " + event.title);
+                        // console.log("Successfully deleted category from event: " + event.title);
                     },
                 })
             );
         }
         else{
-            console.log("Category not contained in event: " + event.title);
+            // console.log("Category not contained in event: " + event.title);
         }
 
     })
 
     return promises
-    // to be implemented
 }
 
+// checks whether an event can be attributed to a category with a certain categoryID.
 function eventContainsCategory(event, categoryID){
 
     var containsCategory = false;
@@ -1034,7 +1144,6 @@ function eventContainsCategory(event, categoryID){
     event.categories.forEach(function(category){
         if(category.id === categoryID){
             containsCategory = true;
-            console.log(event.title + " contains category with id: " + categoryID);
         }
     })
 
@@ -1045,33 +1154,15 @@ function eventContainsCategory(event, categoryID){
 
 function generateCategoryItem(category){
 
-
-
-
-    // <div class="item">
-    // <img class="ui avatar image" src="/images/avatar/small/tom.jpg">
-    // <div class="content">
-    //     <div class="header">Tom</div>
-    //     Top Contributor
-    // </div>
-
-
     var style = 'style="background-color: #2185d0; color: #fff; margin-bottom: 10px"';
 
     var nameParagraph = '<p style="color: #fff">' + category.name + '</p>';
     var deleteSpan = '<span id="deleteSpan' + category.id + '"><i class="trash alternate icon"></i></span>';
 
-    // var htmlString = '<li ' + style + 'id="' + category.id + '">';
-    // htmlString += deleteSpan;
-    // htmlString += nameParagraph;
-    // htmlString += '</li>';
-
-    var htmlString = '<div ' + style + ' class="item ui button" id="' + category.id + '">';
+    var htmlString = '<div ' + style + ' class="item ui button reducedMargin" id="' + category.id + '">';
     htmlString += '<div class="content">'
     + '<div class="flexCategory header">' + deleteSpan + nameParagraph + '</div>';
-    // htmlString += deleteSpan;
     htmlString += '</div>';
-    // console.log(htmlString);
 
     return htmlString;
 }
@@ -1082,9 +1173,87 @@ function generateCategoryItem(category){
 
 
 // *************************************************************************************************
-// Entries: Create, Edit and Delete
+// Entries: Display, Create, Edit and Delete
 
+// displays all the details of an event when the user clicks on it.
+function displaySelectedEventView(event){
 
+    var startDate;
+    var startMonth;
+    var startYear;
+    var startHour;
+    var startMinutes;
+
+    var endDate;
+    var endMonth;
+    var endYear;
+    var endHour;
+    var endMinutes;
+
+    var eventStartString;
+    var timeStartString
+    var eventEndString;
+    var categorySpan;
+
+    displaySelectedEventTitle.empty();
+    displaySelectedEventStartTime.empty();
+    displaySelectedEventEndTime.empty();
+    displaySelectedEventLocation.empty();
+    displaySelectedEventOrganizer.empty();
+    displaySelectedEventWebsite.empty();
+    displaySelectedEventStatus.empty();
+    displaySelectedEventCategories.empty();
+    displaySelectedEventNotes.empty();
+
+    displaySelectedEventTitle.append(event.title);
+
+    startDate = event.start.substring(8, 10);
+    startMonth = event.start.substring(5, 7);
+    startYear = event.start.substring(0, 4);
+
+    startHour = event.start.substring(11, 13);
+    startMinutes = event.start.substring(14);
+    timeStartString = "<span class='displaySelectedEventTimeSpan'>" + startHour + ":" + startMinutes + "</span>";
+
+    eventStartString = startDate + "." + startMonth + "." + startYear + timeStartString;
+
+    endDate = event.end.substring(8, 10);
+    endMonth = event.end.substring(5, 7);
+    endYear = event.end.substring(0, 4);
+
+    endHour = event.end.substring(11, 13);
+    endMinutes = event.end.substring(14);
+    timeEndString = "<span class='displaySelectedEventTimeSpan'>" + endHour + ":" + endMinutes + "</span>";
+
+    eventEndString = endDate + "." + endMonth + "." + endYear + timeEndString;
+
+    displaySelectedEventStartTime.append(eventStartString);
+    displaySelectedEventEndTime.append(eventEndString);
+    displaySelectedEventLocation.append(event.location);
+    displaySelectedEventOrganizer.append(event.organizer);
+    displaySelectedEventWebsite.append(event.webpage);
+    displaySelectedEventStatus.append(event.status);
+    event.categories.forEach(function(category){
+        categorySpan = "<span class='displaySelectedEventCategorySpan'>" + category.name + "</span>";
+        displaySelectedEventCategories.append(categorySpan);
+
+    })
+    displaySelectedEventNotes.append(event.extra);
+    displaySelectedEventImage.attr("src", event.imageurl);
+
+    $('#displaySelectedEventModal')
+    .modal({
+        onApprove: function(){
+            editEvent(event);
+        },
+        inverted: true
+    })
+    .modal('show');
+
+}
+
+// opens the post form with all the fields already filled in for the particular event. When the Submit button is pressed the event
+// will be updated accordingly.
 function editEvent(event){
 
     editMode = true;
@@ -1131,16 +1300,16 @@ function editEvent(event){
 
 }
 
+// permanently delets an event.
 function deleteEvent(eventID){
 
     $.ajax({
         type: "DELETE",
-        url: "https://dhbw.cheekbyte.de/calendar/500/events/" + eventID,
+        url: "https://dhbw.cheekbyte.de/calendar/34069995483613/events/" + eventID,
         success: function(){
-            console.log("Successfully deleted event");
+            // console.log("Successfully deleted event");
         },
       }).done(function(response){
-          console.log(response);
           loadData();
       })
 
@@ -1367,12 +1536,12 @@ function deleteEvent(eventID){
             imageString = ',"imagedata": "REMOVE"';
           }
 
-
           // if allday is true set times to ...
           if(alldayValue) {
 
             startTimeValue = "00:00";
             endTimeValue = "23:59";
+
           }
 
           // concatenate and format dates

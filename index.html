@@ -83,6 +83,7 @@
                                 </div>
 
 
+
                                    <div class="field">
                                      <label>Categories</label>
                                      <div class="ui fluid multiple selection dropdown" id="categoryDropdown">
@@ -99,6 +100,7 @@
                                      <textarea placeholder="Jot something down" rows="1" maxlength="2000" id="extraInput"></textarea>
                                    </div>
 
+
                                 <div class="field">
                                   <label>Image</label>
                                   <div class="ui segment" id="imageSegment">
@@ -111,6 +113,7 @@
                                           <input type="file" id="imageInput" multiple style='display: none;'/>
                                           <label id="imageLabel" for="imageInput">Select image</label>
                                         </div>
+
 
 
                                         <div class="ui checkbox field" id="imageCheckboxField">
@@ -127,6 +130,7 @@
                                     </div>
                                   </div>
                                 </div>
+
 
 
                               <div class="ui segment">
@@ -149,48 +153,21 @@
                             </form>
                           </div>
 
+
                     <div class="pusher">
                       <!-- Site content !-->
 
-
                       <div id="categoryContainer">
                         <div id="categories">
-                          <h3>Categories</h3>
-
-
+                          <h3>Categories (only events of selected categories are displayed)</h3>
                           <div class="ui horizontal list" id="allCategoriesDisplay">
-                              <!-- <div class="item">
-                                <img class="ui avatar image" src="/images/avatar/small/tom.jpg">
-                                <div class="content">
-                                  <div class="header">Tom</div>
-                                  Top Contributor
-                                </div>
-                              </div>
-                              <div class="item">
-                                <img class="ui avatar image" src="/images/avatar/small/christian.jpg">
-                                <div class="content">
-                                  <div class="header">Christian Rocha</div>
-                                  Admin
-                                </div>
-                              </div>
-                              <div class="item">
-                                <img class="ui avatar image" src="/images/avatar/small/matt.jpg">
-                                <div class="content">
-                                  <div class="header">Matt</div>
-                                  Top Rated User
-                                </div>
-                              </div> -->
-
+                              
                             </div>
 
-
-                            <!-- <ul id="allCategoriesDisplay">
-                            </ul> -->
                         </div>
                         <div id="categoryPostContainer">
                           <form class="ui form segment" id="categoryPostForm" method="POST">
                                 <div class="field">
-                                    <label>Add new Category</label>
                                     <input placeholder="Add new category" name="name" type="text" maxlength="30" id="categoryNameInput">
                                 </div>
                                     <div class="ui primary submit button" id="categoryPostButton">Add Category</div>
@@ -211,7 +188,8 @@
                             <button class="ui right labeled icon button" id="nextYearButton">
                                 <i class="right arrow icon"></i>
                                 Next
-                        </button>
+                            </button>
+                            <button class="ui button" id="listAllEvents">List all Events</button>
                         </div>
 
                           <div id="monthNavigation">
@@ -252,6 +230,71 @@
 
                     </div>
 
+
+                    <div class="ui basic modal" id="displaySelectedEventModal">
+                        <div class="ui icon header">
+                          <div class="ui placeholder segment">
+                              <div class="ui two column very relaxed stackable grid">
+                                <div class="middle aligned column">
+                                  <h1 id="displaySelectedEventTitle"></h1>
+                                </div>
+                                <div class="middle aligned column">
+                                  <img src="" alt="event image" height="200" id="displaySelectedEventImage">
+                                </div>
+                              </div>
+                              <div class="ui vertical divider">
+                              </div>
+                            </div>
+                        </div>
+                        <div class="content">
+                            <div class="ui two column very relaxed stackable grid">
+                              <div class="column">
+                                  <h3>Start Time</h3>
+                                  <p id="displaySelectedEventStartTime"></p>
+                                  <div class="ui divider"></div>
+
+                                  <h3>location</h3>
+                                  <p id="displaySelectedEventLocation"></p>
+                                  <div class="ui divider"></div>
+
+                                  <h3>Website</h3>
+                                  <p id="displaySelectedEventWebsite">No website selected</p>
+                                  <div class="ui divider"></div>
+                              </div>
+
+                              <div class="column">
+                                  <h3>End Time</h3>
+                                  <p id="displaySelectedEventEndTime"></p>
+                                  <div class="ui divider"></div>
+
+                                  <h3>Organizer</h3>
+                                  <p id="displaySelectedEventOrganizer"></p>
+                                  <div class="ui divider"></div>
+    
+                                  <h3>Status</h3>
+                                  <p id="displaySelectedEventStatus"></p>
+                                  <div class="ui divider"></div>
+
+                              </div>
+
+                            </div>
+
+                            <h3>Categories</h3>
+                            <p id="displaySelectedEventCategories"></p>
+                            <div class="ui divider"></div>
+
+                            <h3>Notes</h3>
+                            <p id="displaySelectedEventNotes"></p>
+                            <div class="ui divider"></div>
+
+                            <div class="actions">
+                              <div class="ui green ok inverted approve button" id="editEventButton">
+                                <i class="checkmark icon"></i>
+                                Edit
+                              </div>
+                            </div>
+                        </div>
+                      </div>
 
                     <div class="ui basic modal" id="deleteCategoryModal">
                         <div class="ui icon header">
@@ -294,7 +337,51 @@
                               Yes
                             </div>
                           </div>
+                      </div>
+
+
+                      <div class="ui basic modal" id="listAllEventsModal">
+                        <div class="ui icon header">
+                          <h1>Events</h1>
                         </div>
+
+                        <div class="content">
+                            <div class="ui five column very relaxed stackable grid">
+
+                              <div class="three wide column">
+                                <h3>Start Time</h3>
+                                <p id="listEventsStartTime"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>End Time</h3>
+                                <p id="listEventsEndTime"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>Event Title</h3>
+                                <p id="listEventsTitle"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>Location</h3>
+                                <p id="listEventsLocation"></p>
+                                <div class="ui divider"></div>
+                              </div>
+
+                              <div class="three wide column">
+                                <h3>Show Details</h3>
+                                <p id="listEventsDetails"></p>
+                                <div class="ui divider"></div>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
 
             <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
             <script src="logic.js"></script>
