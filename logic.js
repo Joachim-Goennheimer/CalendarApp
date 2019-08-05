@@ -59,6 +59,8 @@ var categoryNameInput = $("#categoryNameInput");
 var deleteCategoryModal = $("#deleteCategoryModal");
 var confirmDeleteCategoryButton = $("#confirmDeleteCategoryButton");
 
+// modal listeners
+var displaySelectedEventModal = $("#displaySelectedEventModal");
 var deleteEventModal = $("#deleteEventModal");
 var confirmDeleteEventButton = $("#confirmDeleteEventButton");
 
@@ -345,7 +347,7 @@ function displayEventsMonthView(){
 
             })
             $("#editEvent" + event.id).on("click", function(){
-                editEvent(event);
+                displaySelectedEventView(event)
             })
 
         // }
@@ -1081,7 +1083,23 @@ function generateCategoryItem(category){
 
 
 // *************************************************************************************************
-// Entries: Create, Edit and Delete
+// Entries: Display, Create, Edit and Delete
+
+function displaySelectedEventView(event){
+
+    $('#displaySelectedEventModal')
+    .modal({
+        onApprove: function(){
+            editEvent(event);
+        },
+        onCancel: function(){
+            console.log("Cancel button pressed");
+        },
+        inverted: true
+    })
+    .modal('show');
+
+}
 
 
 function editEvent(event){
