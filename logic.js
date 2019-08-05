@@ -144,7 +144,7 @@ function loadEventData(){
 
     return new Promise(function(resolve, reject){
 
-        $.get("https://dhbw.cheekbyte.de/calendar/34069995483613/events", function(data){
+        $.get("https://dhbw.cheekbyte.de/calendar/50034054/events", function(data){
         eventData = data;
         resolve("success");
         reject("loading error");
@@ -157,7 +157,7 @@ function loadCategoryData(){
 
     return new Promise(function(resolve, reject){
 
-        $.get("https://dhbw.cheekbyte.de/calendar/34069995483613/categories", function(data){
+        $.get("https://dhbw.cheekbyte.de/calendar/50034054/categories", function(data){
         allCategories = data;
         resolve("success");
         reject("loading error");
@@ -1075,7 +1075,7 @@ function postCategory(){
         var formData = JSON.stringify(postData);
         $.ajax({
             type: "POST",
-            url: "https://dhbw.cheekbyte.de/calendar/34069995483613/categories",
+            url: "https://dhbw.cheekbyte.de/calendar/50034054/categories",
             data: formData,
             success: function(){
                 // console.log("Successfully posted category");
@@ -1097,7 +1097,7 @@ function deleteCategory(categoryID){
 
         $.ajax({
             type: "DELETE",
-            url: "https://dhbw.cheekbyte.de/calendar/34069995483613/categories/" + categoryID,
+            url: "https://dhbw.cheekbyte.de/calendar/50034054/categories/" + categoryID,
             success: function(){
                 // console.log("Successfully deleted category");
             },
@@ -1120,7 +1120,7 @@ function deleteCategoryFromEvents(categoryID){
             promises.push(
                 $.ajax({
                     type: "DELETE",
-                    url: "https://dhbw.cheekbyte.de/calendar/34069995483613/categories/" + categoryID + "/" + event.id,
+                    url: "https://dhbw.cheekbyte.de/calendar/50034054/categories/" + categoryID + "/" + event.id,
                     success: function(){
                         // console.log("Successfully deleted category from event: " + event.title);
                     },
@@ -1305,7 +1305,7 @@ function deleteEvent(eventID){
 
     $.ajax({
         type: "DELETE",
-        url: "https://dhbw.cheekbyte.de/calendar/34069995483613/events/" + eventID,
+        url: "https://dhbw.cheekbyte.de/calendar/50034054/events/" + eventID,
         success: function(){
             // console.log("Successfully deleted event");
         },
@@ -1554,7 +1554,7 @@ function deleteEvent(eventID){
 
           if(!editMode){
 
-            $.post("https://dhbw.cheekbyte.de/calendar/500/events",requestData, function(status) {
+            $.post("https://dhbw.cheekbyte.de/calendar/50034054/events",requestData, function(status) {
               console.log(status);
               loadData();
             });
@@ -1562,7 +1562,7 @@ function deleteEvent(eventID){
           else{
 
             $.ajax({
-              url: 'https://dhbw.cheekbyte.de/calendar/500/events/' + editID,
+              url: 'https://dhbw.cheekbyte.de/calendar/50034054/events/' + editID,
               type: 'PUT',
               data: requestData,
               dataType: "json",
