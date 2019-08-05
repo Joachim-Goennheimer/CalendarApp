@@ -6,6 +6,8 @@ Events:
 
 New Events can either be created by clicking on the Create New Entry button or by clicking on the cell that corresponds to the event time.
 
+An Events details can be displayed by clicking on the event.
+
 Categories:
 
 Categories can be selected and deselected. An event will only be displayed if it has either no category or if at least one of its categories is selected.

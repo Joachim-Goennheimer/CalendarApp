@@ -1555,7 +1555,7 @@ function deleteEvent(eventID){
           if(!editMode){
 
             $.post("https://dhbw.cheekbyte.de/calendar/50034054/events",requestData, function(status) {
-              console.log(status);
+            //   console.log(status);
               loadData();
             });
           }
@@ -1568,7 +1568,7 @@ function deleteEvent(eventID){
               dataType: "json",
               contentType: 'application/json',
               success: function(result) {
-                console.log("Edit event: " + editID);
+                // console.log("Edit event: " + editID);
                 editID = "";
                 loadData();
               }
